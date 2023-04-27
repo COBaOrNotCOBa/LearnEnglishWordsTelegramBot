@@ -11,6 +11,7 @@ data class Word(
 
 fun main() {
 
+    var startMenu: String
     val wordsFile: File = File("words.txt")
     val dictionary: MutableList<Word> = mutableListOf()
 
@@ -26,5 +27,25 @@ fun main() {
             )
         )
     }
-    println(dictionary)
+
+    var countLearnedWords: Int
+    var countAllWords: Int
+    do {
+        println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
+        startMenu = readln()
+        when (startMenu) {
+            "1" -> println("1")
+            "2" -> {
+                countAllWords = dictionary.size
+                countLearnedWords = dictionary.filter {
+                    it.correctAnswersCount >= 3
+                }.size
+
+                println("Выучено $countLearnedWords из $countAllWords слов | ${100 * countLearnedWords / countAllWords}%")
+            }
+
+            "0" -> println("Выход")
+            else -> println("Введите номер пункта меню")
+        }
+    } while (startMenu != "0")
 }

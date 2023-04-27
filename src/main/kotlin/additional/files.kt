@@ -12,23 +12,19 @@ data class Word(
 fun main() {
 
     val wordsFile: File = File("words.txt")
-    var dictionary: Word
-
-//    wordsFile.createNewFile()
-//    wordsFile.writeText("COBa was here")
-//    wordsFile.appendText("Ill be back")
-//    println(wordsFile.readLines())
+    val dictionary: MutableList<Word> = mutableListOf()
 
     val listTextFromFile = wordsFile.readLines()
     listTextFromFile.forEach {
         val line = it.split("|")
-        dictionary = Word(
-            original = line[0],
-            translate = line[1],
-            correctAnswersCount = line[2].toInt(),
-            learnedWord = line[3].toInt(),
+        dictionary.add(
+            Word(
+                original = line[0],
+                translate = line[1],
+                correctAnswersCount = line[2].toInt(),
+                learnedWord = line[3].toInt(),
+            )
         )
-        println(dictionary)
     }
-
+    println(dictionary)
 }

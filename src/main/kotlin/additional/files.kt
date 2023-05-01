@@ -30,11 +30,35 @@ fun main() {
 
     var countLearnedWords: Int
     var countAllWords: Int
+    var dictionaryNotLearned: List<Word>
+    var userChoice: String = ""
     do {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         startMenu = readln()
         when (startMenu) {
-            "1" -> println("1")
+            "1" -> {
+                while (userChoice != "0") {
+                    dictionaryNotLearned = dictionary.filter {
+                        it.correctAnswersCount < 3
+                    }
+                    if (dictionaryNotLearned.isEmpty()) {
+                        println("Вы выучили все слова")
+                        break
+                    }
+
+                    dictionaryNotLearned = dictionaryNotLearned.shuffled().take(4)
+                    for (i in 0..3) {
+                        println("${i + 1}: ${dictionaryNotLearned[i].original}")
+                    }
+                    dictionaryNotLearned = dictionaryNotLearned.shuffled().take(1)
+
+                    println("Найди правильный перевод слова: ${dictionaryNotLearned[0].translate}")
+
+                    println("Выберете вариант ответа от 1 до 4. Или нажмите 0 для возврата в главное меню")
+                    userChoice = readln()
+                }
+            }
+
             "2" -> {
                 countAllWords = dictionary.size
                 countLearnedWords = dictionary.filter {

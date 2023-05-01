@@ -46,15 +46,14 @@ fun main() {
                         break
                     }
 
+                    println("Выберете вариант ответа от 1 до 4. Или нажмите 0 для возврата в главное меню.")
                     dictionaryNotLearned = dictionaryNotLearned.shuffled().take(4)
                     for (i in 0..3) {
                         println("${i + 1}: ${dictionaryNotLearned[i].original}")
                     }
                     dictionaryNotLearned = dictionaryNotLearned.shuffled().take(1)
+                    println("Найди перевод слова: ${dictionaryNotLearned[0].translate}")
 
-                    println("Найди правильный перевод слова: ${dictionaryNotLearned[0].translate}")
-
-                    println("Выберете вариант ответа от 1 до 4. Или нажмите 0 для возврата в главное меню")
                     userChoice = readln()
                 }
             }

@@ -33,7 +33,8 @@ fun main() {
     var dictionaryNotLearnedWords: List<Word>
     var dictionaryForUserChoice: List<Word>
     var rightAnswer: Word
-    var userChoice: String = ""
+    var userChoice: Int?
+
     do {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         startMenu = readln()
@@ -41,7 +42,7 @@ fun main() {
             "1" -> {
                 while (true) {
                     dictionaryNotLearnedWords = dictionary.filter {
-                        it.correctAnswersCount < 3
+                        it.learnedWord < 1
                     }
                     if (dictionaryNotLearnedWords.isEmpty()) {
                         println("Вы выучили все слова")
@@ -50,24 +51,25 @@ fun main() {
 
                     println()
                     println("Выберете вариант ответа от 1 до 4. Или нажмите 0 для возврата в главное меню.")
-                    dictionaryForUserChoice = dictionaryNotLearnedWords.shuffled().take(4)
+                    dictionaryForUserChoice = dictionaryNotLearnedWords.shuffled().take(NUMBER_OF_WORDS_CHOICE)
                     for (i in 0..3) {
                         println("${i + 1}: ${dictionaryForUserChoice[i].original}")
                     }
                     rightAnswer = dictionaryForUserChoice.shuffled().take(1)[0]
                     println("Найди перевод слова: ${rightAnswer.translate}")
 
-                    userChoice = readln()
+                    userChoice = readln().toInt() ?: 0
 
                     when (userChoice) {
-                        "0" -> break
-                        "1", "2", "3", "4" -> {
-                            if (rightAnswer == dictionaryForUserChoice[userChoice.toInt() - 1]) {
+                        0 -> break
+                        in 1..NUMBER_OF_WORDS_CHOICE -> {
+                            if (rightAnswer == dictionaryForUserChoice[userChoice - 1]) {
                                 println(
                                     "Верно! Перевод слова ${rightAnswer.translate} - " +
-                                            dictionaryForUserChoice[userChoice.toInt() - 1].original
+                                            dictionaryForUserChoice[userChoice - 1].original
                                 )
                                 rightAnswer.correctAnswersCount += 1
+                                if (rightAnswer.correctAnswersCount > 2) rightAnswer.learnedWord = 1
                                 saveDictionary(dictionary, wordsFile)
 
                             } else println("Не верно.")
@@ -81,7 +83,7 @@ fun main() {
             "2" -> {
                 countAllWords = dictionary.size
                 countLearnedWords = dictionary.filter {
-                    it.correctAnswersCount >= 3
+                    it.learnedWord > 0
                 }.size
 
                 println(
@@ -104,3 +106,5 @@ fun saveDictionary(dictionary: List<Word>, wordsFile: File) {
         )
     }
 }
+
+val NUMBER_OF_WORDS_CHOICE = 4

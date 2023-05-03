@@ -6,7 +6,6 @@ data class Word(
     val original: String,
     val translate: String,
     var correctAnswersCount: Int = 0,
-    var learnedWord: Int,
 )
 
 fun main() {
@@ -23,7 +22,6 @@ fun main() {
                 original = line[0],
                 translate = line[1],
                 correctAnswersCount = line[2].toInt(),
-                learnedWord = line[3].toInt(),
             )
         )
     }
@@ -42,7 +40,7 @@ fun main() {
             "1" -> {
                 while (true) {
                     dictionaryNotLearnedWords = dictionary.filter {
-                        it.learnedWord < 1
+                        it.correctAnswersCount < 3
                     }
                     if (dictionaryNotLearnedWords.isEmpty()) {
                         println("Вы выучили все слова")
@@ -69,7 +67,6 @@ fun main() {
                                             dictionaryForUserChoice[userChoice - 1].original
                                 )
                                 rightAnswer.correctAnswersCount += 1
-                                if (rightAnswer.correctAnswersCount > 2) rightAnswer.learnedWord = 1
                                 saveDictionary(dictionary, wordsFile)
 
                             } else println("Не верно.")
@@ -83,7 +80,7 @@ fun main() {
             "2" -> {
                 countAllWords = dictionary.size
                 countLearnedWords = dictionary.filter {
-                    it.learnedWord > 0
+                    it.correctAnswersCount >= 3
                 }.size
 
                 println(
@@ -102,7 +99,7 @@ fun saveDictionary(dictionary: List<Word>, wordsFile: File) {
     wordsFile.writeText("")
     dictionary.forEach {
         wordsFile.appendText(
-            "${it.original}|${it.translate}|${it.correctAnswersCount}|${it.learnedWord}\n"
+            "${it.original}|${it.translate}|${it.correctAnswersCount}\n"
         )
     }
 }

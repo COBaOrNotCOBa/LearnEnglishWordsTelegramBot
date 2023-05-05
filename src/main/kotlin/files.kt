@@ -13,7 +13,12 @@ fun Question.asConsoleString(): String {
 
 fun main() {
 
-    val trainer = LearnWordsTrainer()
+    val trainer = try {
+        LearnWordsTrainer(3, 4)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
 
     while (true) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
@@ -31,11 +36,11 @@ fun main() {
                         if (userAnswerInput == 0) break
 
                         if (trainer.checkAnswer(userAnswerInput?.minus(1))) {
-                            println(
-                                "Верно! Перевод слова ${question.correctAnswer.translate} - " +
-                                        question.correctAnswer.original
-                            )
-                        } else println("Не верно.")
+                            println("Верно!")
+                        } else println(
+                            "Не верно. Перевод слова ${question.correctAnswer.translate} - " +
+                                    question.correctAnswer.original
+                        )
                     }
                 }
             }
@@ -53,4 +58,3 @@ fun main() {
         }
     }
 }
-val NUMBER_OF_WORDS_CHOICE = 4

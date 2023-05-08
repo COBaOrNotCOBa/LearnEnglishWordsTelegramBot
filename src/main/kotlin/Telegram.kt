@@ -9,18 +9,29 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
 
-
-
     while (true) {
         Thread.sleep(2000)
         val updates: String = getUpdates(botToken, updateId)
         println(updates)
 
-        val startUpdateId = updates.lastIndexOf("update_id")
-        val endUpdateId = updates.lastIndexOf(",\n\"message\"")
-        if (startUpdateId == -1 || endUpdateId == -1) continue
-        val updateIdString = updates.substring(startUpdateId + 11, endUpdateId)
+        val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
+        val matchResult: MatchResult? = messageTextRegex.find(updates)
+        val group = matchResult?.groups
+        val text = group?.get(1)?.value
+
+        val chatIdRegex: Regex = "\"chat\":\\{\"id\":(.+?),".toRegex()
+        val chatIdMatchResult: MatchResult? = chatIdRegex.find(updates)
+        val chatIdGroup = chatIdMatchResult?.groups
+        val chatIdNumber = chatIdGroup?.get(1)?.value
+
+//        sendMessage(botToken, chatIdNumber, text)
+
+        val updateIdRegex: Regex = "\"update_id\":(.+?),".toRegex()
+        val matchResultId: MatchResult? = updateIdRegex.find(updates)
+        val groupId = matchResultId?.groups
+        val updateIdString = groupId?.get(1)?.value ?: continue
         updateId = updateIdString.toInt() + 1
+
     }
 }
 
@@ -31,5 +42,14 @@ fun getUpdates(botToken: String, updateId: Int): String {
     val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
 
     return response.body()
+}
 
+fun sendMessage(botToken: String, chatId: String?, text: String?): String {
+    val urlChatId = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId"
+    val urlText = "https://api.telegram.org/bot$botToken/sendMessage?text=$text"
+    val client: HttpClient = HttpClient.newBuilder().build()
+    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlChatId)).build()
+    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+    return response.body()
 }

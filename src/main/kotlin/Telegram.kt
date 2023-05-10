@@ -44,8 +44,8 @@ fun main(args: Array<String>) {
     }
 }
 
-fun regex(serchingText: String, updates: String): String? {
-    val messageRegex: Regex = serchingText.toRegex()
+fun regex(searchingText: String, updates: String): String? {
+    val messageRegex: Regex = searchingText.toRegex()
     val matchResult: MatchResult? = messageRegex.find(updates)
     val group = matchResult?.groups
     return group?.get(1)?.value

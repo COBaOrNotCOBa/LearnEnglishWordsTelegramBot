@@ -28,6 +28,7 @@ class TelegramBotService {
         val messageRegex: Regex = searchingText.toRegex()
         val matchResult: MatchResult? = messageRegex.find(updates)
         val group = matchResult?.groups
+
         return group?.get(1)?.value
     }
 

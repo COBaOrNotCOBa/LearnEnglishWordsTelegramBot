@@ -8,31 +8,47 @@ fun main(args: Array<String>) {
 
     val botToken = args[0]
     var updateId = 0
+    val messageText = "\"text\":\"(.+?)\""
+    val messageChatId = "\"chat\":\\{\"id\":(.+?),"
+    val messageUpdates = "\"update_id\":(.+?),"
 
     while (true) {
         Thread.sleep(2000)
         val updates: String = getUpdates(botToken, updateId)
         println(updates)
 
-        val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
-        val matchResult: MatchResult? = messageTextRegex.find(updates)
-        val group = matchResult?.groups
-        val text = group?.get(1)?.value
+        val text = regex(messageText, updates) ?: continue
+        println(text)
+        val chatId = regex(messageChatId, updates) ?: continue
+        println(chatId)
+        updateId = regex(messageUpdates, updates)?.toInt()?.plus(1) ?: continue
+        println(updateId)
 
-        val chatIdRegex: Regex = "\"chat\":\\{\"id\":(.+?),".toRegex()
-        val chatIdMatchResult: MatchResult? = chatIdRegex.find(updates)
-        val chatIdGroup = chatIdMatchResult?.groups
-        val chatIdNumber = chatIdGroup?.get(1)?.value
+//        val messageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
+//        val matchResult: MatchResult? = messageTextRegex.find(updates)
+//        val group = matchResult?.groups
+//        val text = group?.get(1)?.value
+//
+//        val chatIdRegex: Regex = "\"chat\":\\{\"id\":(.+?),".toRegex()
+//        val chatIdMatchResult: MatchResult? = chatIdRegex.find(updates)
+//        val chatIdGroup = chatIdMatchResult?.groups
+//        val chatIdNumber = chatIdGroup?.get(1)?.value
+
+//        val updateIdRegex: Regex = "\"update_id\":(.+?),".toRegex()
+//        val matchResultId: MatchResult? = updateIdRegex.find(updates)
+//        val groupId = matchResultId?.groups
+//        val updateIdString = groupId?.get(1)?.value ?: continue
+//        updateId = updateIdString.toInt() + 1
 
 //        sendMessage(botToken, chatIdNumber, text)
-
-        val updateIdRegex: Regex = "\"update_id\":(.+?),".toRegex()
-        val matchResultId: MatchResult? = updateIdRegex.find(updates)
-        val groupId = matchResultId?.groups
-        val updateIdString = groupId?.get(1)?.value ?: continue
-        updateId = updateIdString.toInt() + 1
-
     }
+}
+
+fun regex(serchingText: String, updates: String): String? {
+    val messageRegex: Regex = serchingText.toRegex()
+    val matchResult: MatchResult? = messageRegex.find(updates)
+    val group = matchResult?.groups
+    return group?.get(1)?.value
 }
 
 fun getUpdates(botToken: String, updateId: Int): String {

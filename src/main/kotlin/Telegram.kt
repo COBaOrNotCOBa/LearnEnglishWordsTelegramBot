@@ -3,7 +3,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-
 fun main(args: Array<String>) {
 
     val botToken = args[0]
@@ -40,7 +39,8 @@ fun main(args: Array<String>) {
 //        val updateIdString = groupId?.get(1)?.value ?: continue
 //        updateId = updateIdString.toInt() + 1
 
-//        sendMessage(botToken, chatIdNumber, text)
+          sendMessage(botToken, chatId, text)
+
     }
 }
 
@@ -61,8 +61,7 @@ fun getUpdates(botToken: String, updateId: Int): String {
 }
 
 fun sendMessage(botToken: String, chatId: String?, text: String?): String {
-    val urlChatId = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId"
-    val urlText = "https://api.telegram.org/bot$botToken/sendMessage?text=$text"
+    val urlChatId = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=$text"
     val client: HttpClient = HttpClient.newBuilder().build()
     val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlChatId)).build()
     val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())

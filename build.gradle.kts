@@ -1,6 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.8.21"
-    kotlin("plugin.serialization") version "1.8.21"
+    kotlin("jvm") version "1.8.0"
+    kotlin("plugin.serialization") version "1.8.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     application
 }
 
@@ -25,5 +26,5 @@ kotlin {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("TelegramKt")
 }

@@ -103,7 +103,7 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: HashMap
 
     if (data == STATISTICS_CLICKED) {
         val statistics = trainer.getStatistics()
-        sendMessage(
+        sendResetButton(
             json,
             botToken, chatId,
             "Выучено ${statistics.countLearnedWords} из " +
@@ -240,8 +240,34 @@ fun sendMenu(json: Json, botToken: String, chatId: Long): String {
                     InlineKeyboard(callbackData = LEARN_WORDS_CLICKED, text = "Изучать слова"),
                     InlineKeyboard(callbackData = STATISTICS_CLICKED, text = "Статистика"),
                 ),
+//                listOf(
+//                    InlineKeyboard(callbackData = RESET_CLICKED, text = "Сбросить прогресс")
+//                )
+            )
+        )
+    )
+    val requestBodyString = json.encodeToString(requestBody)
+    val client: HttpClient = HttpClient.newBuilder().build()
+    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
+        .header("Content-type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+        .build()
+    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+    return response.body()
+}
+
+fun sendResetButton(json: Json, botToken: String, chatId: Long, message: String): String {
+    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val requestBody = SendMessageRequest(
+        chatId = chatId,
+        text = message,
+        replyMarkup = ReplyMarkup(
+            listOf(
                 listOf(
                     InlineKeyboard(callbackData = RESET_CLICKED, text = "Сбросить прогресс")
+                ),
+                listOf(
+                    InlineKeyboard(callbackData = MAIN_MENU, text = "Возврат в главное меню"),
                 )
             )
         )

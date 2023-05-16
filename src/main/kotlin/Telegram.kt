@@ -79,7 +79,9 @@ fun main(args: Array<String>) {
 
     while (true) {
         Thread.sleep(2000)
-        val responseString = getUpdates(botToken, lastUpdateId)
+//      val responseString = getUpdates(botToken, lastUpdateId)
+        val result = runCatching { getUpdates(botToken, lastUpdateId) }
+        val responseString = result.getOrNull() ?: continue
         println(responseString)
 
         val response: Response = json.decodeFromString(responseString)

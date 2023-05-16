@@ -79,7 +79,6 @@ fun main(args: Array<String>) {
 
     while (true) {
         Thread.sleep(2000)
-//      val responseString = getUpdates(botToken, lastUpdateId)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
         println(responseString)
@@ -176,50 +175,24 @@ fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): St
 
 fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {
     val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    var listButtonsQuestions = ReplyMarkup(
+        question.variants.mapIndexed { index, word ->
+            listOf(
+                InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
+            )
+        }
+    )
+    val resultList = listButtonsQuestions.inlineKeyboard.toMutableList()
+    resultList.add(
+        listOf(
+            InlineKeyboard(callbackData = MAIN_MENU, text = "Возврат в основное меню")
+        )
+    )
+    listButtonsQuestions = ReplyMarkup(resultList.toList())
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = question.correctAnswer.original,
-        replyMarkup = ReplyMarkup(
-            listOf(
-                listOf(
-                    InlineKeyboard(
-                        text = question.variants[0].translate,
-                        callbackData = "${CALLBACK_DATA_ANSWER_PREFIX}0"
-                    )
-                ),
-                listOf(
-                    InlineKeyboard(
-                        text = question.variants[1].translate,
-                        callbackData = "${CALLBACK_DATA_ANSWER_PREFIX}1"
-                    )
-                ),
-                listOf(
-                    InlineKeyboard(
-                        text = question.variants[2].translate,
-                        callbackData = "${CALLBACK_DATA_ANSWER_PREFIX}2"
-                    )
-                ),
-                listOf(
-                    InlineKeyboard(
-                        text = question.variants[3].translate,
-                        callbackData = "${CALLBACK_DATA_ANSWER_PREFIX}3"
-                    )
-                ),
-                listOf(
-                    InlineKeyboard(
-                        callbackData = MAIN_MENU, text = "Возврат в основное меню"
-                    )
-                )
-            )
-        )
-//        replyMarkup = ReplyMarkup(
-    //           question.variants.mapIndexed { index, word ->
-//                listOf(
-//                    InlineKeyboard(
-//                        text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"
-//                    )
-//               )
-//            }
+        replyMarkup = listButtonsQuestions,
     )
     val requestBodyString = json.encodeToString(requestBody)
     val client: HttpClient = HttpClient.newBuilder().build()
@@ -241,10 +214,7 @@ fun sendMenu(json: Json, botToken: String, chatId: Long): String {
                 listOf(
                     InlineKeyboard(callbackData = LEARN_WORDS_CLICKED, text = "Изучать слова"),
                     InlineKeyboard(callbackData = STATISTICS_CLICKED, text = "Статистика"),
-                ),
-//                listOf(
-//                    InlineKeyboard(callbackData = RESET_CLICKED, text = "Сбросить прогресс")
-//                )
+                )
             )
         )
     )
@@ -268,29 +238,6 @@ fun sendResetButton(json: Json, botToken: String, chatId: Long, message: String)
                 listOf(
                     InlineKeyboard(callbackData = RESET_CLICKED, text = "Сбросить прогресс")
                 ),
-                listOf(
-                    InlineKeyboard(callbackData = MAIN_MENU, text = "Возврат в главное меню"),
-                )
-            )
-        )
-    )
-    val requestBodyString = json.encodeToString(requestBody)
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-        .header("Content-type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
-        .build()
-    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-    return response.body()
-}
-
-fun sendMenuButton(json: Json, botToken: String, chatId: Long): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-    val requestBody = SendMessageRequest(
-        chatId = chatId,
-        text = "Возврат в главное меню",
-        replyMarkup = ReplyMarkup(
-            listOf(
                 listOf(
                     InlineKeyboard(callbackData = MAIN_MENU, text = "Возврат в главное меню"),
                 )

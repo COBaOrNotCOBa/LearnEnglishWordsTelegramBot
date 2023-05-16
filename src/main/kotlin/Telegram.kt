@@ -205,13 +205,13 @@ fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question)
                 ),
                 listOf(
                     InlineKeyboard(
-                        callbackData = MAIN_MENU, text = "Возврат в главное меню"
+                        callbackData = MAIN_MENU, text = "Возврат в основное меню"
                     )
                 )
             )
         )
 //        replyMarkup = ReplyMarkup(
-//           question.variants.mapIndexed { index, word ->
+    //           question.variants.mapIndexed { index, word ->
 //                listOf(
 //                    InlineKeyboard(
 //                        text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index"

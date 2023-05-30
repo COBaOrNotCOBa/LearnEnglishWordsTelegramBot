@@ -15,6 +15,8 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("io.github.reactivecircus.cache4k:cache4k:0.9.0")
 }
 
 tasks.test {
@@ -22,7 +24,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(18)
 }
 
 application {

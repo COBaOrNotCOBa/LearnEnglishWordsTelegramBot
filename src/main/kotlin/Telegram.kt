@@ -109,7 +109,7 @@ fun main(args: Array<String>) {
         Thread.sleep(2000)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
-        println(responseString)
+        if (responseString!="{\"ok\":true,\"result\":[]}") println(responseString)
 
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue

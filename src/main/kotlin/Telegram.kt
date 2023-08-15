@@ -109,7 +109,7 @@ fun main(args: Array<String>) {
         Thread.sleep(2000)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
-        if (responseString!="{\"ok\":true,\"result\":[]}") println(responseString)
+        if (responseString != "{\"ok\":true,\"result\":[]}") println(responseString)
 
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
@@ -125,7 +125,7 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
     val chatId = update.message?.chat?.id ?: update.callbackQuery?.message?.chat?.id ?: return
     val data = update.callbackQuery?.data
     val trainer = trainers.get(chatId) ?: run {
-        val newTrainer = LearnWordsTrainer("$chatId.txt")
+        val newTrainer = LearnWordsTrainer("src/main/kotlin/Result/$chatId.txt")
         trainers.put(chatId, newTrainer)
         newTrainer
     }
@@ -140,7 +140,10 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
             botToken, chatId,
             "Выучено ${statistics.countLearnedWords} из " +
                     "${statistics.countAllWords} слов | " +
-                    "${statistics.learnedPercent}%"
+                    "${statistics.learnedPercent}%\n\n" +
+                    "Слово считаеться выученным если на него ${trainer.learnedAnswerCount} раза правильно ответили.\n" +
+                    "Если в разделе останеться меньше ${trainer.countOfQuestionWords}-х не выученных слов,\n" +
+                    "то среди вариантов будут повторяться уже выученные."
         )
     }
 
@@ -150,7 +153,12 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
     }
 
     if (data == LEARN_WORDS_CLICKED) {
-        checkNextQuestionAndSend(json, trainer, botToken, chatId)
+        sendListOfSteps(json, botToken, chatId)
+    }
+
+    if (data?.startsWith(STEP) == true) {
+        val step = data.substringAfter(STEP).toInt()
+        checkNextQuestionAndSend(json, trainer, botToken, chatId, step)
     }
 
     if (data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) == true) {
@@ -166,14 +174,17 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
                         "${trainer.question?.correctAnswer?.translate}"
             )
         }
-        checkNextQuestionAndSend(json, trainer, botToken, chatId)
+        val step = trainer.question?.correctAnswer?.groupAlphabet
+        if (step != null) {
+            checkNextQuestionAndSend(json, trainer, botToken, chatId, step)
+        }
     }
 }
 
-fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: String, chatId: Long) {
-    val question = trainer.getNextQuestion()
+fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: String, chatId: Long, step: Int) {
+    val question = trainer.getNextQuestion(step)
     if (question == null) {
-        sendMessage(json, botToken, chatId, "Вы выучили все слова")
+        sendMessage(json, botToken, chatId, "Вы выучили все словав этом разделе")
         sendMenu(json, botToken, chatId)
     } else {
         sendQuestion(json, botToken, chatId, question)
@@ -216,6 +227,33 @@ fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question)
                 )
             }
         ),
+    )
+    val requestBodyString = json.encodeToString(requestBody)
+    val client: HttpClient = HttpClient.newBuilder().build()
+    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
+        .header("Content-type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+        .build()
+    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+    return response.body()
+}
+
+fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
+    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val requestBody = SendMessageRequest(
+        chatId = chatId,
+        text = "Список этапов",
+        replyMarkup = ReplyMarkup(
+            listOf(
+                listOf(InlineKeyboard(callbackData = STEP_5, text = "Алфавит (страница 16)")),
+                listOf(InlineKeyboard(callbackData = STEP_1, text = "1 список слов (страница 6)")),
+                listOf(InlineKeyboard(callbackData = STEP_2, text = "2 список слов (страница 8)")),
+                listOf(InlineKeyboard(callbackData = STEP_3, text = "3 список слов (страница 10)")),
+                listOf(InlineKeyboard(callbackData = STEP_4, text = "4 список слов (страницы 12-15)")),
+                listOf(InlineKeyboard(callbackData = STEP_6, text = "5 список слов (страница 22)")),
+                listOf(InlineKeyboard(callbackData = STEP_7, text = "Цвета (страница 24)")),
+                )
+        )
     )
     val requestBodyString = json.encodeToString(requestBody)
     val client: HttpClient = HttpClient.newBuilder().build()
@@ -296,3 +334,11 @@ const val LEARN_WORDS_CLICKED = "learn_words_clicked"
 const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
 const val RESET_CLICKED = "reset_clicked"
 const val MAIN_MENU = "/start"
+const val STEP = "step_"
+const val STEP_1 = "step_1"
+const val STEP_2 = "step_2"
+const val STEP_3 = "step_3"
+const val STEP_4 = "step_4"
+const val STEP_5 = "step_5"
+const val STEP_6 = "step_6"
+const val STEP_7 = "step_7"

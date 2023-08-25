@@ -242,7 +242,7 @@ fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
     val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
-        text = "Список этапов",
+        text = "Список этапов со страницами из учебника",
         replyMarkup = ReplyMarkup(
             listOf(
                 listOf(InlineKeyboard(callbackData = STEP_5, text = "Алфавит (страница 16)")),

@@ -12,6 +12,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import io.github.reactivecircus.cache4k.Cache
+import java.io.File
 
 @Serializable
 data class Update(
@@ -109,7 +110,10 @@ fun main(args: Array<String>) {
         Thread.sleep(2000)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
-        if (responseString != "{\"ok\":true,\"result\":[]}") println(responseString)
+        if (responseString != "{\"ok\":true,\"result\":[]}") {
+            println(responseString)
+            File("src/main/kotlin/Result/log.txt").appendText(responseString)
+        }
 
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue

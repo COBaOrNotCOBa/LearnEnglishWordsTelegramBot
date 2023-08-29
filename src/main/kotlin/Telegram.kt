@@ -112,7 +112,7 @@ fun main(args: Array<String>) {
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {
             println(responseString)
-            File("src/main/kotlin/Result/log.txt").appendText(responseString)
+            File("src/main/kotlin/Result/log.txt").appendText("$responseString\n")
         }
 
         val response: Response = json.decodeFromString(responseString)

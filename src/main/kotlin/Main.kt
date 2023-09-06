@@ -19,7 +19,7 @@ fun main() {
         when (readln().toIntOrNull()) {
             1 -> {
                 while (true) {
-                    val question = trainer.getNextQuestion()
+                    val question = trainer.getNextQuestion(step=0)
                     if (question == null) {
                         println("Вы выучили все слова")
                         break

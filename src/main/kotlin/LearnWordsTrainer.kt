@@ -6,6 +6,7 @@ data class Word(
     val original: String,
     val translate: String,
     var correctAnswersCount: Int = 0,
+    val groupAlphabet: Int
 )
 
 data class Statistics(
@@ -21,8 +22,8 @@ data class Question(
 
 class LearnWordsTrainer(
     private val fileName: String = "words.txt",
-    private val learnedAnswerCount: Int = 3,
-    private val countOfQuestionWords: Int = 4,
+    val learnedAnswerCount: Int = 3,
+    val countOfQuestionWords: Int = 4,
 ) {
 
     var question: Question? = null
@@ -35,8 +36,9 @@ class LearnWordsTrainer(
         return Statistics(countAllWords, countLearnedWords, learnedPercent)
     }
 
-    fun getNextQuestion(): Question? {
-        val notLearnedWords = dictionary.filter { it.correctAnswersCount < learnedAnswerCount }
+    fun getNextQuestion(step : Int): Question? {
+        val wordsInStep = dictionary.filter { it.groupAlphabet == step }
+        val notLearnedWords = wordsInStep.filter { it.correctAnswersCount < learnedAnswerCount }
         if (notLearnedWords.isEmpty()) return null
         val questionWords = if (notLearnedWords.size < countOfQuestionWords) {
             val learnedWords = dictionary.filter { it.correctAnswersCount >= learnedAnswerCount }.shuffled()
@@ -73,7 +75,7 @@ class LearnWordsTrainer(
             val dictionary: MutableList<Word> = mutableListOf()
             wordsFile.readLines().forEach {
                 val line = it.split("|")
-                dictionary.add(Word(line[0], line[1], line[2].toIntOrNull() ?: 0))
+                dictionary.add(Word(line[0], line[1], line[2].toIntOrNull() ?: 0, line[3].toInt() ))
             }
             return dictionary
         } catch (e: IndexOutOfBoundsException) {
@@ -86,7 +88,7 @@ class LearnWordsTrainer(
         wordsFile.writeText("")
         dictionary.forEach {
             wordsFile.appendText(
-                "${it.original}|${it.translate}|${it.correctAnswersCount}\n"
+                "${it.original}|${it.translate}|${it.correctAnswersCount}|${it.groupAlphabet}\n"
             )
         }
     }

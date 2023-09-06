@@ -107,7 +107,7 @@ fun main(args: Array<String>) {
     )
 
     while (true) {
-        Thread.sleep(2000)
+        Thread.sleep(2500)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {
@@ -115,6 +115,7 @@ fun main(args: Array<String>) {
             File("src/main/kotlin/Result/log.txt").appendText("$responseString\n")
         }
 
+        if (responseString.contains("Too Many Requests")) continue
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
@@ -168,7 +169,7 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
     if (data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) == true) {
         val answerId = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
         if (trainer.checkAnswer(answerId)) {
-            sendMessage(json, botToken, chatId, "Правильно")
+            sendMessage(json, botToken, chatId, "Правильно!")
         } else {
             sendMessage(
                 json,
@@ -249,13 +250,23 @@ fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
         text = "Список этапов со страницами из учебника",
         replyMarkup = ReplyMarkup(
             listOf(
-                listOf(InlineKeyboard(callbackData = STEP_5, text = "Алфавит (страница 16)")),
-                listOf(InlineKeyboard(callbackData = STEP_1, text = "1 список слов (страница 6)")),
-                listOf(InlineKeyboard(callbackData = STEP_2, text = "2 список слов (страница 8)")),
-                listOf(InlineKeyboard(callbackData = STEP_3, text = "3 список слов (страница 10)")),
-                listOf(InlineKeyboard(callbackData = STEP_4, text = "4 список слов (страницы 12-15)")),
-                listOf(InlineKeyboard(callbackData = STEP_6, text = "5 список слов (страница 22)")),
-                listOf(InlineKeyboard(callbackData = STEP_7, text = "Цвета (страница 24)")),
+                listOf(InlineKeyboard(callbackData = "step_5", text = "Алфавит (страница 16)")),
+                listOf(InlineKeyboard(callbackData = "step_1", text = "Слова со страницы 6")),
+                listOf(InlineKeyboard(callbackData = "step_2", text = "Слова со страницы 8")),
+                listOf(InlineKeyboard(callbackData = "step_3", text = "Слова со страницы 10")),
+                listOf(InlineKeyboard(callbackData = "step_4", text = "Слова со страниц 12-15")),
+                listOf(InlineKeyboard(callbackData = "step_6", text = "Слова со страницы 22")),
+                listOf(InlineKeyboard(callbackData = "step_7", text = "Цвета (страница 24)")),
+                listOf(InlineKeyboard(callbackData = "step_8", text = "Module 1. Unit 1 My Home!")),
+                listOf(InlineKeyboard(callbackData = "step_9", text = "Unit 2/3")),
+                listOf(InlineKeyboard(callbackData = "step_10", text = "Module 2 Unit 4 Numbers")),
+                listOf(InlineKeyboard(callbackData = "step_11", text = "Module 2 Unit 4")),
+                listOf(InlineKeyboard(callbackData = "step_12", text = "Unit 5-6")),
+                listOf(InlineKeyboard(callbackData = "step_13", text = "Module 3 unit 7-9")),
+                listOf(InlineKeyboard(callbackData = "step_14", text = "Module 4  Unit 10")),
+                listOf(InlineKeyboard(callbackData = "step_15", text = "Unit 11-12")),
+                listOf(InlineKeyboard(callbackData = "step_16", text = "Module 5 Unit 13")),
+                listOf(InlineKeyboard(callbackData = "step_17", text = "Unit 14-15")),
                 )
         )
     )
@@ -339,10 +350,3 @@ const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
 const val RESET_CLICKED = "reset_clicked"
 const val MAIN_MENU = "/start"
 const val STEP = "step_"
-const val STEP_1 = "step_1"
-const val STEP_2 = "step_2"
-const val STEP_3 = "step_3"
-const val STEP_4 = "step_4"
-const val STEP_5 = "step_5"
-const val STEP_6 = "step_6"
-const val STEP_7 = "step_7"

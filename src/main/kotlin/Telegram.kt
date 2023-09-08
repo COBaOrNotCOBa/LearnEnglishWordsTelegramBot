@@ -107,7 +107,7 @@ fun main(args: Array<String>) {
     )
 
     while (true) {
-        Thread.sleep(2500)
+        Thread.sleep(3000)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {
@@ -171,13 +171,15 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
         if (trainer.checkAnswer(answerId)) {
             sendMessage(json, botToken, chatId, "Правильно!")
         } else {
-            sendMessage(
-                json,
-                botToken,
-                chatId,
-                "Не правильно: ${trainer.question?.correctAnswer?.original} - " +
-                        "${trainer.question?.correctAnswer?.translate}"
-            )
+            if (trainer.question?.correctAnswer?.original != null) {
+                sendMessage(
+                    json,
+                    botToken,
+                    chatId,
+                    "Не правильно: ${trainer.question?.correctAnswer?.original} - " +
+                            "${trainer.question?.correctAnswer?.translate}"
+                )
+            } else sendMenu(json, botToken, chatId)
         }
         val step = trainer.question?.correctAnswer?.groupAlphabet
         if (step != null) {
@@ -267,7 +269,7 @@ fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
                 listOf(InlineKeyboard(callbackData = "step_15", text = "Unit 11-12")),
                 listOf(InlineKeyboard(callbackData = "step_16", text = "Module 5 Unit 13")),
                 listOf(InlineKeyboard(callbackData = "step_17", text = "Unit 14-15")),
-                )
+            )
         )
     )
     val requestBodyString = json.encodeToString(requestBody)

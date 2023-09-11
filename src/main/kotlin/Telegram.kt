@@ -115,7 +115,8 @@ fun main(args: Array<String>) {
             File("src/main/kotlin/Result/log.txt").appendText("$responseString\n")
         }
 
-        if (responseString.contains("Too Many Requests")) continue
+        if (responseString.contains("Too Many Requests") ||
+            responseString.contains("Gateway Timeout")) continue
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }

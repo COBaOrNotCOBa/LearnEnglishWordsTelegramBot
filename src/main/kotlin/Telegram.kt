@@ -1,3 +1,4 @@
+import io.github.reactivecircus.cache4k.Cache
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -11,7 +12,6 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import io.github.reactivecircus.cache4k.Cache
 import java.io.File
 
 @Serializable
@@ -95,9 +95,9 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var lastUpdateId = 0L
     val json = Json { ignoreUnknownKeys = true }
-    val trainers = Cache.Builder()
+    val trainers = Cache.Builder<Long, LearnWordsTrainer>()
         .maximumCacheSize(50)
-        .build<Long, LearnWordsTrainer>()
+        .build()
 
 
     botCommand(
@@ -107,7 +107,7 @@ fun main(args: Array<String>) {
     )
 
     while (true) {
-        Thread.sleep(3000)
+        Thread.sleep(2000)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {

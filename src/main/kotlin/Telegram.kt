@@ -107,7 +107,7 @@ fun main(args: Array<String>) {
     )
 
     while (true) {
-        Thread.sleep(2000)
+        Thread.sleep(2500)
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {

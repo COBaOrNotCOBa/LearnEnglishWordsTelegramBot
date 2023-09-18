@@ -36,7 +36,7 @@ class LearnWordsTrainer(
         return Statistics(countAllWords, countLearnedWords, learnedPercent)
     }
 
-    fun getNextQuestion(step : Int): Question? {
+    fun getNextQuestion(step: Int): Question? {
         val wordsInStep = dictionary.filter { it.groupAlphabet == step }
         val notLearnedWords = wordsInStep.filter { it.correctAnswersCount < learnedAnswerCount }
         if (notLearnedWords.isEmpty()) return null
@@ -47,7 +47,10 @@ class LearnWordsTrainer(
         } else {
             notLearnedWords.shuffled().take(countOfQuestionWords)
         }.shuffled()
-        val correctAnswer = questionWords.random()
+        var correctAnswer = questionWords.random()
+        while (correctAnswer.correctAnswersCount > 2) {
+            correctAnswer = questionWords.random()
+        }
         question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,
@@ -75,7 +78,7 @@ class LearnWordsTrainer(
             val dictionary: MutableList<Word> = mutableListOf()
             wordsFile.readLines().forEach {
                 val line = it.split("|")
-                dictionary.add(Word(line[0], line[1], line[2].toIntOrNull() ?: 0, line[3].toInt() ))
+                dictionary.add(Word(line[0], line[1], line[2].toIntOrNull() ?: 0, line[3].toInt()))
             }
             return dictionary
         } catch (e: IndexOutOfBoundsException) {

@@ -4,9 +4,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URI
 import java.net.http.HttpClient
@@ -14,6 +17,12 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.io.File
 
+
+@Serializable
+data class Response(
+    @SerialName("result")
+    val result: List<Update>,
+)
 @Serializable
 data class Update(
     @SerialName("update_id")
@@ -25,17 +34,23 @@ data class Update(
 )
 
 @Serializable
-data class Response(
-    @SerialName("result")
-    val result: List<Update>,
+data class Message(
+    @SerialName("text")
+    val text: String? = null,
+    @SerialName("chat")
+    val chat: Chat,
+    @SerialName("voice")
+    val voice: Voice? = null,
 )
 
 @Serializable
-data class Message(
-    @SerialName("text")
-    val text: String?=null,
-    @SerialName("chat")
-    val chat: Chat,
+data class Voice(
+    @SerialName("file_id")
+    val fileId: String?=null,
+    @SerialName("file_unique_id")
+    val file_unique_id: String?=null,
+    @SerialName("file_path")
+    val file_path: String?=null,
 )
 
 @Serializable
@@ -60,6 +75,8 @@ data class SendMessageRequest(
     val text: String,
     @SerialName("reply_markup")
     val replyMarkup: ReplyMarkup? = null,
+    @SerialName("audio")
+    val audio: String? = null
 )
 
 @Serializable
@@ -90,6 +107,28 @@ data class BotCommand(
     val description: String
 )
 
+@Serializable
+data class AudioResponse(
+    @SerialName("result")
+    val result: Audio?
+)
+
+//@Serializable
+//data class AudioResult(
+//    @SerialName("audio")
+//    val audio: Audio?
+//)
+
+@Serializable
+data class Audio(
+    @SerialName("file_id")
+    val fileId: String,
+    @SerialName("file_unique_id")
+    val file_unique_id: String,
+    @SerialName("file_path")
+    val file_path: String?=null,
+)
+
 fun main(args: Array<String>) {
 
     val botToken = args[0]
@@ -116,7 +155,8 @@ fun main(args: Array<String>) {
         }
 
         if (responseString.contains("Too Many Requests") ||
-            responseString.contains("Gateway Timeout")) continue
+            responseString.contains("Gateway Timeout")
+        ) continue
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
@@ -137,6 +177,13 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
     }
     if (message?.lowercase() == MAIN_MENU || data == MAIN_MENU) {
         sendMenu(json, botToken, chatId)
+    }
+
+    if (chatId==1081959967L) {
+        val voice = update.message?.voice
+        if (voice!=null) {
+            downloadAudio(json,botToken,voice.fileId)
+        }
     }
 
     if (data == STATISTICS_CLICKED) {
@@ -187,6 +234,14 @@ fun handleUpdate(update: Update, json: Json, botToken: String, trainers: Cache<L
             checkNextQuestionAndSend(json, trainer, botToken, chatId, step)
         }
     }
+
+    if (message == "A") {
+        sendAudio(
+            botToken,
+            chatId,
+            "${AUDIO_PATH}1"
+        )
+    }
 }
 
 fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: String, chatId: Long, step: Int) {
@@ -223,6 +278,74 @@ fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): St
     return response.body()
 }
 
+fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
+    val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendAudio"
+    val fileMediaType = "audio/*".toMediaType()
+    val requestBody = MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("chat_id", chatId.toString())
+        .addFormDataPart(
+            "audio",
+            File(audioFilePath).name,
+            File(audioFilePath).asRequestBody(fileMediaType)
+        )
+        .build()
+    val request = Request.Builder()
+        .url(sendAudioUrl)
+        .post(requestBody)
+        .build()
+    val client = OkHttpClient()
+    val response = client.newCall(request).execute()
+
+    return response.body?.string() ?: ""
+}
+
+fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Question): String {
+    val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendAudio"
+    val fileMediaType = "audio/*".toMediaType()
+    val client = OkHttpClient()
+    // Отправка аудио файла
+    val audioRequestBody = MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("chat_id", chatId.toString())
+        .addFormDataPart(
+            "audio",
+            File("$AUDIO_PATH${question.correctAnswer.audio}").name,
+            File("$AUDIO_PATH${question.correctAnswer.audio}").asRequestBody(fileMediaType)
+        )
+        .build()
+    val audioRequest = Request.Builder()
+        .url(sendAudioUrl)
+        .post(audioRequestBody)
+        .build()
+    val audioResponse = client.newCall(audioRequest).execute()
+    // Получение URL аудио файла
+    val audioResponseJson = json.decodeFromString<AudioResponse>(audioResponse.body?.string() ?: "")
+    val audioUrl = audioResponseJson.result?.fileId ?: ""
+    // Отправка вариантов ответов с аудио
+    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
+    val requestBody = SendMessageRequest(
+        chatId = chatId,
+        text = question.correctAnswer.original,
+        replyMarkup = ReplyMarkup(
+            question.variants.mapIndexed { index, word ->
+                listOf(
+                    InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
+                )
+            }
+        ),
+        audio = audioUrl
+    )
+    val requestBodyString = json.encodeToString(requestBody)
+    val sendMessageRequest = Request.Builder()
+        .url(sendMessageUrl)
+        .header("Content-type", "application/json")
+        .post(requestBodyString.toRequestBody())
+        .build()
+    val sendMessageResponse = client.newCall(sendMessageRequest).execute()
+    return sendMessageResponse.body?.string() ?: ""
+}
+
 fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {
     val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
@@ -244,6 +367,25 @@ fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question)
         .build()
     val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
     return response.body()
+}
+
+fun downloadAudio(json: Json, botToken: String, fileId: String?) {
+    val client = OkHttpClient()
+    val url = "https://api.telegram.org/bot$botToken/getFile?file_id=$fileId"
+    val request = Request.Builder()
+        .url(url)
+        .build()
+    val response = client.newCall(request).execute()
+    val responseBody = response.body?.string()
+    val audio: AudioResponse = json.decodeFromString(responseBody!!)
+    val audioUrl = "https://api.telegram.org/file/bot$botToken/${audio.result?.file_path}"
+    val audioRequest = Request.Builder()
+        .url(audioUrl)
+        .build()
+    val audioResponse = client.newCall(audioRequest).execute()
+    val audioBytes = audioResponse.body?.bytes()
+    val saveFile = File("${AUDIO_PATH}1")
+    saveFile.writeBytes(audioBytes!!)
 }
 
 fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
@@ -353,3 +495,5 @@ const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
 const val RESET_CLICKED = "reset_clicked"
 const val MAIN_MENU = "/start"
 const val STEP = "step_"
+const val AUDIO_PATH = "C:\\Users\\user\\IdeaProjects\\LearnEnglishWordsTelegramBot" +
+        "\\src\\main\\kotlin\\Audio\\"

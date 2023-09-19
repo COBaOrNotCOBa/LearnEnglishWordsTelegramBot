@@ -6,7 +6,8 @@ data class Word(
     val original: String,
     val translate: String,
     var correctAnswersCount: Int = 0,
-    val groupAlphabet: Int
+    val groupAlphabet: Int,
+    val audio: String? = null,
 )
 
 data class Statistics(
@@ -78,7 +79,16 @@ class LearnWordsTrainer(
             val dictionary: MutableList<Word> = mutableListOf()
             wordsFile.readLines().forEach {
                 val line = it.split("|")
-                dictionary.add(Word(line[0], line[1], line[2].toIntOrNull() ?: 0, line[3].toInt()))
+                val lastItem = if (line.size > 4) line[4] else ""
+                dictionary.add(
+                    Word(
+                        line[0],
+                        line[1],
+                        line[2].toIntOrNull() ?: 0,
+                        line[3].toInt(),
+                        lastItem
+                    )
+                )
             }
             return dictionary
         } catch (e: IndexOutOfBoundsException) {
@@ -91,7 +101,7 @@ class LearnWordsTrainer(
         wordsFile.writeText("")
         dictionary.forEach {
             wordsFile.appendText(
-                "${it.original}|${it.translate}|${it.correctAnswersCount}|${it.groupAlphabet}\n"
+                "${it.original}|${it.translate}|${it.correctAnswersCount}|${it.groupAlphabet}|${it.audio}\n"
             )
         }
     }

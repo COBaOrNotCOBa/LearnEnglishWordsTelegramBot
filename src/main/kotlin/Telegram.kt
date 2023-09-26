@@ -1,3 +1,4 @@
+import org.slf4j.LoggerFactory
 import io.github.reactivecircus.cache4k.Cache
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -138,7 +139,7 @@ fun main(args: Array<String>) {
     val trainers = Cache.Builder<Long, LearnWordsTrainer>()
         .maximumCacheSize(50)
         .build()
-
+    val logger = LoggerFactory.getLogger("Log")
     val savingVoice = mutableMapOf<Long, List<String>>()
 
     botCommand(
@@ -153,7 +154,8 @@ fun main(args: Array<String>) {
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {
             println(responseString)
-            File("src/main/kotlin/Result/log.txt").appendText("$responseString\n")
+//            File("src/main/kotlin/Result/log.txt").appendText("$responseString\n")
+            logger.info(responseString)
         }
 
         if (responseString.contains("Too Many Requests") ||
@@ -174,6 +176,8 @@ fun handleUpdate(
     trainers: Cache<Long, LearnWordsTrainer>,
     savingVoice: MutableMap<Long, List<String>>
 ) {
+
+    val logger = LoggerFactory.getLogger("Log")
 
     val message = update.message?.text
     val chatId = update.message?.chat?.id ?: update.callbackQuery?.message?.chat?.id ?: return
@@ -228,7 +232,11 @@ fun handleUpdate(
             val listOfWords = trainer.getListOfWordsForAudioRecord(savingVoice[chatId]?.get(0)?.toInt() ?: 0)
             var word = listOfWords[savingVoice[chatId]?.get(1)?.toInt() ?: 0].original
             if (word.contains('?')) word = word.replace("?", "")
-            sendAudio(botToken,chatId,"$AUDIO_PATH$word")
+            if (sendAudio(botToken,chatId,"$AUDIO_PATH$word") == "Ошибка: Файл не существует") {
+                logger.info("Ошибка: Файл $AUDIO_PATH$word не существует")
+                println("Ошибка: Файл $AUDIO_PATH$word не существует")
+                sendMessage(json,botToken,chatId,"Файл не найден, попробуйте перезаписать его")
+            }
         }
 
     }
@@ -324,8 +332,8 @@ fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): St
 fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
     val audioFile = File(audioFilePath)
     if (!audioFile.exists()) {
-        println("Ошибка: Файл не существует \"$audioFilePath")
-        File("src/main/kotlin/Result/log.txt").appendText("$audioFilePath\n")
+//        println("Ошибка: Файл не существует \"$audioFilePath")
+//        File("src/main/kotlin/Result/log.txt").appendText("$audioFilePath\n")
         return "Ошибка: Файл не существует"
     }
     val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendAudio"

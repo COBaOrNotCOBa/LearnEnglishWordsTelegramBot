@@ -7,7 +7,7 @@ data class Word(
     val translate: String,
     var correctAnswersCount: Int = 0,
     val groupAlphabet: Int,
-    val audio: String? = null,
+    var audio: String? = null,
 )
 
 data class Statistics(
@@ -68,6 +68,14 @@ class LearnWordsTrainer(
                 true
             } else false
         } ?: false
+    }
+
+    fun saveAudio(){
+        saveDictionary()
+    }
+
+    fun getListOfWordsForAudioRecord(step: Int): List<Word> {
+        return dictionary.filter { it.groupAlphabet == step }
     }
 
     private fun loadDictionary(): List<Word> {

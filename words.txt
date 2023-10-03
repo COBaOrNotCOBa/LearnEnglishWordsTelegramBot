@@ -1,223 +1,223 @@
-ant|муравей|0|1
-bed|кровать|0|1
-cat|кошка|0|1
-dog|собака|0|1
-egg|яйцо|0|1
-flag|флаг|0|1
-glass|стакан|0|1
-horse|лошадь|0|1
-ink|чернила|0|2
-jug|кувшин|0|2
-kangaroo|кенгуру|0|2
-lamp|лампа|0|2
-mouse|мышь|0|2
-nest|гнездо|0|2
-orange|апельсин|0|2
-pin|булавка|0|2
-queen|королева|0|2
-rabbit|кролик|0|3
-snake|змея|0|3
-tree|дерево|0|3
-umbrella|зонт|0|3
-vest|жилет|0|3
-window|окно|0|3
-box|коробка|0|3
-yacht|яхта|0|3
-zip|молния|0|3
-sheep|овца|0|4
-fish|рыба|0|4
-ship|корабль|0|4
-chick|цыплёнок|0|4
-cheese|сыр|0|4
-thumb|большой палец|0|4
-thimble|напёрсток|0|4
-photo|фотография|0|4
-dolphin|дельфин|0|4
-elephant|слон|0|4
-A |a|0|5
-B |b|0|5
-C |c|0|5
-D |d|0|5
-E |e|0|5
-F |f|0|5
-G |g|0|5
-H |h|0|5
-I |i|0|5
-J |j|0|5
-K |k|0|5
-L |l|0|5
-M |m|0|5
-N |n|0|5
-O |o|0|5
-P |p|0|5
-Q |q|0|5
-R |r|0|5
-S |s|0|5
-T |t|0|5
-U |u|0|5
-V |v|0|5
-W |w|0|5
-X |x|0|5
-Y |y|0|5
-Z |z|0|5
-children|дети|0|6
-friend|друг|0|6
-sister|сестра|0|6
-brother|брат|0|6
-mummy|мама|0|6
-daddy|папа|0|6
-grandma|бабушка|0|6
-grandpa|дедушка|0|6
-family|семья|0|6
-close your eyes|закрой глаза|0|6
-open your eyes |открой глаза|0|6
-now |сейчас|0|6
-sit down|садись|0|6
-stand up|вставай|0|6
-look|смотри|0|6
-listen|слушай|0|6
-read|прочти|0|6
-How are you?|Как дела?|0|6
-Fine, thanks!|Спасибо, хорошо!|0|6
-What's your name?|Как тебя зовут?|0|6
-I|Я|0|6
-my|мой|0|6
-me|меня|0|6
-you|ты|0|6
-colour|цвет|0|7
-red|красный|0|7
-yellow|желтый|0|7
-green|зелёный|0|7
-blue|синий|0|7
-pink|розовый|0|7
-purple|фиолетовый|0|7
-white|белый|0|7
-black|чёрный|0|7
-brown|коричневый|0|7
-tree house|домик на дереве|0|8
-chair|стул|0|8
-table|стол|0|8
-radio|радио|0|8
-bed|кровать|0|8
-look at|смотреть на что-либо,  кого-либо|0|8
-lovely|прекрасный|0|8
-nice|милый|0|8
-our|наш|0|8
-bathroom|ванная|0|9
-bath|ванна|0|9
-living room|гостиная|0|9
-bedroom|спальня|0|9
-garden|сад|0|9
-He|он|0|9
-She|она|0|9
-it|он, она, оно ( о предметах, животных)|0|9
-they|они|0|9
-door|дверь|0|9
-window|окно|0|9
-make|делать|0|9
-one|один|0|10
-two|два|0|10
-three|три|0|10
-four|четыре|0|10
-five|пять|0|10
-six|шесть|0|10
-seven|семь|0|10
-eight|восемь|0|10
-nine|девять|0|10
-ten|десять|0|10
-birthday|день рождения|0|11
-candle|свеча|0|11
-party|вечеринка|0|11
-today|сегодня|0|11
-happy|счастливый|0|11
-sad|грустный|0|11
-How old are you?|Сколько тебе лет?|0|11
-apple|яблоко|0|12
-banana|банан|0|12
-biscuit|печенье|0|12
-burger|бургер|0|12
-chips|картофель фри|0|12
-chocolate|шоколад|0|12
-sandwich|бутерброд|0|12
-ice-cream|мороженое|0|12
-pizza|пицца|0|12
-orange juice|апельсиновый сок|0|12
-milk|молоко|0|12
-eat|есть|0|12
-food|еда|0|12
-give|давать|0|12
-please|пожалуйста|0|12
-Thank you!|Спасибо!|0|12
-yummy |вкусный|0|12
-What's your favourite food?|Какая у тебя любимая еда?|0|12
-animal|животное|0|13
-bird|птица|0|13
-chimp|шимпанзе|0|13
-fish|рыба|0|13
-frog|лягушка|0|13
-horse|лошадь|0|13
-jump|прыгать|0|13
-run|бегать|0|13
-sing|петь|0|13
-swim|плавать|0|13
-climb|взбираться|0|13
-fly|летать|0|13
-swing|качаться|0|13
-boy|мальчик|0|13
-girl|девочка|0|13
-clown|клоун|0|13
-magician|фокусник|0|13
-circus|цирк|0|13
-can|мочь, уметь|0|13
-can't|не могу, не умею|0|13
-funny|смешной|0|13
-ballerina|балерина|0|14
-doll|кукла|0|14
-teddy bear|плюшевый медведь|0|14
-toy soldier|игрушечный солдат |0|14
-toy|игрушка|0|14
-toy box|коробка для игрушек|0|14
-shelf|полка|0|14
-on|на|0|14
-in|в|0|14
-under|под |0|14
-his|его |0|14
-her|её|0|14
-eyes|глаза|0|15
-ears|уши|0|15
-nose|нос|0|15
-dark hair|тёмные волосы|0|15
-fair hair|светлые волосы|0|15
-clever|умный|0|15
-wonderful|прекрасный|0|15
-ball|мяч|0|15
-jack-in-the box|попрыгунчик|0|15
-puppet|кукла (одевающаяся на руку)|0|15
-big|большой|0|15
-small|маленький|0|15
-boat|лодка|0|16
-coat|пальто|0|16
-hat|шляпа|0|16
-jacket|куртка|0|16
-shorts|шорты|0|16
-wear|носить|0|16
-put on|надевать|0|16
-take off|снимать|0|16
-play|играть|0|16
-What's the weather like? |Какая сейчас погода?|0|16
-It's hot!|Жарко!|0|16
-It's raining!|Идёт дождь!|0|16
-It's sunny!|Солнечно!|0|16
-island|остров|0|17
-magic|волшебный|0|17
-It's cold!|Холодно!|0|17
-It's windy!|Ветрено!|0|17
-jeans|джинсы|0|17
-shoes|туфли|0|17
-skirt|юбка|0|17
-socks|носки|0|17
-T-shirt|футболка|0|17
-spring|весна|0|17
-summer|лето|0|17
-autumn|осень|0|17
-winter|зима|0|17
+ant|муравей|0|1|ant
+bed|кровать|0|1|bed
+cat|кошка|0|1|cat
+dog|собака|0|1|dog
+egg|яйцо|0|1|egg
+flag|флаг|0|1|flag
+glass|стакан|0|1|glass
+horse|лошадь|0|1|horse
+ink|чернила|0|2|ink
+jug|кувшин|0|2|jug
+kangaroo|кенгуру|0|2|kangaroo
+lamp|лампа|0|2|lamp
+mouse|мышь|0|2|mouse
+nest|гнездо|0|2|nest
+orange|апельсин|0|2|orange
+pin|булавка|0|2|pin
+queen|королева|0|2|queen
+rabbit|кролик|0|3|rabbit
+snake|змея|0|3|snake
+tree|дерево|0|3|tree
+umbrella|зонт|0|3|umbrella
+vest|жилет|0|3|vest
+window|окно|0|3|window
+box|коробка|0|3|box
+yacht|яхта|0|3|yacht
+zip|молния|0|3|zip
+sheep|овца|0|4|sheep
+fish|рыба|0|4|fish
+ship|корабль|0|4|ship
+chick|цыплёнок|0|4|chick
+cheese|сыр|0|4|cheese
+thumb|большой палец|0|4|thumb
+thimble|напёрсток|0|4|thimble
+photo|фотография|0|4|photo
+dolphin|дельфин|0|4|dolphin
+elephant|слон|0|4|elephant
+A |a|0|5|A
+B |b|0|5|B
+C |c|0|5|C
+D |d|0|5|D
+E |e|0|5|E
+F |f|0|5|F
+G |g|0|5|G
+H |h|0|5|H
+I |i|0|5|I
+J |j|0|5|J
+K |k|0|5|K
+L |l|0|5|L
+M |m|0|5|M
+N |n|0|5|N
+O |o|0|5|O
+P |p|0|5|P
+Q |q|0|5|Q
+R |r|0|5|R
+S |s|0|5|S
+T |t|0|5|T
+U |u|0|5|U
+V |v|0|5|V
+W |w|0|5|W
+X |x|0|5|X
+Y |y|0|5|Y
+Z |z|0|5|Z
+children|дети|0|6|children
+friend|друг|0|6|friend
+sister|сестра|0|6|sister
+brother|брат|0|6|brother
+mummy|мама|0|6|mummy
+daddy|папа|0|6|daddy
+grandma|бабушка|0|6|grandma
+grandpa|дедушка|0|6|grandpa
+family|семья|0|6|family
+close your eyes|закрой глаза|0|6|close your eyes
+open your eyes |открой глаза|0|6|open your eyes
+now |сейчас|0|6|now
+sit down|садись|0|6|sit down
+stand up|вставай|0|6|stand up
+look|смотри|0|6|look
+listen|слушай|0|6|listen
+read|прочти|0|6|read
+How are you?|Как дела?|0|6|How are you
+Fine, thanks!|Спасибо, хорошо!|0|6|Fine, thanks!
+What's your name?|Как тебя зовут?|0|6|What's your name
+I|Я|0|6|I
+my|мой|0|6|my
+me|меня|0|6|me
+you|ты|0|6|you
+colour|цвет|0|7|colour
+red|красный|0|7|red
+yellow|желтый|0|7|yellow
+green|зелёный|0|7|green
+blue|синий|0|7|blue
+pink|розовый|0|7|pink
+purple|фиолетовый|0|7|purple
+white|белый|0|7|white
+black|чёрный|0|7|black
+brown|коричневый|0|7|brown
+tree house|домик на дереве|0|8|tree house
+chair|стул|0|8|chair
+table|стол|0|8|table
+radio|радио|0|8|radio
+bed|кровать|0|8|bed
+look at|смотреть на что-либо,  кого-либо|0|8|look at
+lovely|прекрасный|0|8|lovely
+nice|милый|0|8|nice
+our|наш|0|8|our
+bathroom|ванная|0|9|bathroom
+bath|ванна|0|9|bath
+living room|гостиная|0|9|living room
+bedroom|спальня|0|9|bedroom
+garden|сад|0|9|garden
+He|он|0|9|He
+She|она|0|9|She
+it|он, она, оно ( о предметах, животных)|0|9|it
+they|они|0|9|they
+door|дверь|0|9|door
+window|окно|0|9|window
+make|делать|0|9|make
+one|один|0|10|one
+two|два|0|10|two
+three|три|1|10|three
+four|четыре|0|10|four
+five|пять|0|10|five
+six|шесть|0|10|six
+seven|семь|0|10|seven
+eight|восемь|0|10|eight
+nine|девять|0|10|nine
+ten|десять|0|10|ten
+birthday|день рождения|0|11|birthday
+candle|свеча|0|11|candle
+party|вечеринка|0|11|party
+today|сегодня|0|11|today
+happy|счастливый|0|11|happy
+sad|грустный|0|11|sad
+How old are you?|Сколько тебе лет?|0|11|How old are you
+apple|яблоко|0|12|apple
+banana|банан|0|12|banana
+biscuit|печенье|0|12|biscuit
+burger|бургер|0|12|burger
+chips|картофель фри|0|12|chips
+chocolate|шоколад|0|12|chocolate
+sandwich|бутерброд|0|12|sandwich
+ice-cream|мороженое|0|12|ice-cream
+pizza|пицца|0|12|pizza
+orange juice|апельсиновый сок|0|12|orange juice
+milk|молоко|0|12|milk
+eat|есть|0|12|eat
+food|еда|0|12|food
+give|давать|0|12|give
+please|пожалуйста|0|12|please
+Thank you!|Спасибо!|0|12|Thank you!
+yummy |вкусный|0|12|yummy
+What's your favourite food?|Какая у тебя любимая еда?|0|12|What's your favourite food
+animal|животное|0|13|animal
+bird|птица|0|13|bird
+chimp|шимпанзе|0|13|chimp
+fish|рыба|0|13|fish
+frog|лягушка|0|13|frog
+horse|лошадь|0|13|horse
+jump|прыгать|0|13|jump
+run|бегать|0|13|run
+sing|петь|0|13|sing
+swim|плавать|0|13|swim
+climb|взбираться|0|13|climb
+fly|летать|0|13|fly
+swing|качаться|0|13|swing
+boy|мальчик|0|13|boy
+girl|девочка|0|13|girl
+clown|клоун|0|13|clown
+magician|фокусник|0|13|magician
+circus|цирк|0|13|circus
+can|мочь, уметь|0|13|can
+can't|не могу, не умею|0|13|can't
+funny|смешной|0|13|funny
+ballerina|балерина|0|14|
+doll|кукла|0|14|
+teddy bear|плюшевый медведь|0|14|
+toy soldier|игрушечный солдат |0|14|
+toy|игрушка|0|14|
+toy box|коробка для игрушек|0|14|
+shelf|полка|0|14|
+on|на|0|14|
+in|в|0|14|
+under|под |0|14|
+his|его |0|14|
+her|её|0|14|
+eyes|глаза|0|15|eyes
+ears|уши|0|15|ears
+nose|нос|0|15|nose
+dark hair|тёмные волосы|0|15|dark hair
+fair hair|светлые волосы|0|15|fair hair
+clever|умный|0|15|clever
+wonderful|прекрасный|0|15|wonderful
+ball|мяч|0|15|ball
+jack-in-the box|попрыгунчик|0|15|jack-in-the box
+puppet|кукла (одевающаяся на руку)|0|15|puppet
+big|большой|0|15|big
+small|маленький|0|15|small
+boat|лодка|0|16|boat
+coat|пальто|0|16|coat
+hat|шляпа|0|16|hat
+jacket|куртка|0|16|jacket
+shorts|шорты|0|16|shorts
+wear|носить|0|16|wear
+put on|надевать|0|16|put on
+take off|снимать|0|16|take off
+play|играть|0|16|play
+What's the weather like? |Какая сейчас погода?|0|16|What's the weather like
+It's hot!|Жарко!|0|16|It's hot!
+It's raining!|Идёт дождь!|0|16|It's raining!
+It's sunny!|Солнечно!|0|16|It's sunny!
+island|остров|0|17|island
+magic|волшебный|0|17|magic
+It's cold!|Холодно!|0|17|It's cold!
+It's windy!|Ветрено!|0|17|It's windy!
+jeans|джинсы|0|17|jeans
+shoes|туфли|0|17|shoes
+skirt|юбка|0|17|skirt
+socks|носки|0|17|socks
+T-shirt|футболка|0|17|T-shirt
+spring|весна|0|17|spring
+summer|лето|0|17|summer
+autumn|осень|0|17|autumn
+winter|зима|0|17|winter

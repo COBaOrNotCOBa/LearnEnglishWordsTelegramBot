@@ -131,6 +131,28 @@ data class Audio(
     val file_path: String? = null,
 )
 
+@Serializable
+data class SendAudioResponse(
+    @SerialName("result")
+    val result: SendAudioResult
+)
+
+@Serializable
+data class SendAudioResult(
+    @SerialName("voice")
+    val voice: SendAudio
+)
+
+@Serializable
+data class SendAudio(
+    @SerialName("file_id")
+    val fileId: String,
+    @SerialName("file_unique_id")
+    val file_unique_id: String,
+    @SerialName("file_path")
+    val file_path: String? = null,
+)
+
 fun main(args: Array<String>) {
 
     val botToken = args[0]
@@ -144,7 +166,7 @@ fun main(args: Array<String>) {
 
     botCommand(
         json, botToken, listOf(
-            BotCommand("start", "Глвное меню"),
+            BotCommand("start", "Главное меню"),
         )
     )
 
@@ -154,7 +176,6 @@ fun main(args: Array<String>) {
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {
             println(responseString)
-//            File("src/main/kotlin/Result/log.txt").appendText("$responseString\n")
             logger.info(responseString)
         }
 
@@ -249,8 +270,8 @@ fun handleUpdate(
             "Выучено ${statistics.countLearnedWords} из " +
                     "${statistics.countAllWords} слов | " +
                     "${statistics.learnedPercent}%\n\n" +
-                    "Слово считаеться выученным если на него ${trainer.learnedAnswerCount} раза правильно ответили.\n" +
-                    "Если в разделе останеться меньше ${trainer.countOfQuestionWords}-х не выученных слов,\n" +
+                    "Слово считается выученным, если на него ${trainer.learnedAnswerCount} раза правильно ответили.\n" +
+                    "Если в разделе останется меньше ${trainer.countOfQuestionWords}-х невыученных слов,\n" +
                     "то среди вариантов будут повторяться уже выученные."
         )
     }
@@ -301,7 +322,7 @@ fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: S
         sendMessage(json, botToken, chatId, "Вы выучили все словав этом разделе")
         sendMenu(json, botToken, chatId)
     } else {
-        sendQuestion(json, botToken, chatId, question)
+        sendQuestionAudio(json, botToken, chatId, question)
     }
 }
 
@@ -332,8 +353,6 @@ fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): St
 fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
     val audioFile = File(audioFilePath)
     if (!audioFile.exists()) {
-//        println("Ошибка: Файл не существует \"$audioFilePath")
-//        File("src/main/kotlin/Result/log.txt").appendText("$audioFilePath\n")
         return "Ошибка: Файл не существует"
     }
     val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendAudio"
@@ -353,8 +372,31 @@ fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
     return response.body?.string() ?: ""
 }
 
+fun sendVoice(botToken: String, chatId: Long, audioFilePath: String): String {
+    val audioFile = File(audioFilePath)
+    if (!audioFile.exists()) {
+        return "Ошибка: Файл не существует"
+    }
+    val sendVoiceUrl = "https://api.telegram.org/bot$botToken/sendVoice"
+    val fileMediaType = "audio/*".toMediaType()
+    val requestBody = MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("chat_id", chatId.toString())
+        .addFormDataPart("voice", audioFile.name, audioFile.asRequestBody(fileMediaType))
+        .addFormDataPart("duration", "5")
+        .build()
+    val request = Request.Builder()
+        .url(sendVoiceUrl)
+        .post(requestBody)
+        .build()
+    val client = OkHttpClient()
+    val response = client.newCall(request).execute()
+
+    return response.body?.string() ?: ""
+}
+
 fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Question): String {
-    val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendAudio"
+    val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendVoice"
     val fileMediaType = "audio/*".toMediaType()
     val client = OkHttpClient()
     // Отправка аудио файла
@@ -362,10 +404,11 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
         .setType(MultipartBody.FORM)
         .addFormDataPart("chat_id", chatId.toString())
         .addFormDataPart(
-            "audio",
+            "voice",
             File("$AUDIO_PATH${question.correctAnswer.audio}").name,
             File("$AUDIO_PATH${question.correctAnswer.audio}").asRequestBody(fileMediaType)
         )
+        .addFormDataPart("duration", "5")
         .build()
     val audioRequest = Request.Builder()
         .url(sendAudioUrl)
@@ -373,8 +416,8 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
         .build()
     val audioResponse = client.newCall(audioRequest).execute()
     // Получение URL аудио файла
-    val audioResponseJson = json.decodeFromString<AudioResponse>(audioResponse.body?.string() ?: "")
-    val audioUrl = audioResponseJson.result?.fileId ?: ""
+    val audioResponseJson = json.decodeFromString<SendAudioResponse>(audioResponse.body?.string() ?: "")
+    val audioUrl = audioResponseJson.result.voice.fileId ?: ""
     // Отправка вариантов ответов с аудио
     val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
@@ -479,13 +522,13 @@ fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
         text = "Список этапов со страницами из учебника",
         replyMarkup = ReplyMarkup(
             listOf(
-                listOf(InlineKeyboard(callbackData = "step_5", text = "Алфавит (страница 16)")),
-                listOf(InlineKeyboard(callbackData = "step_1", text = "Слова со страницы 6")),
-                listOf(InlineKeyboard(callbackData = "step_2", text = "Слова со страницы 8")),
-                listOf(InlineKeyboard(callbackData = "step_3", text = "Слова со страницы 10")),
-                listOf(InlineKeyboard(callbackData = "step_4", text = "Слова со страниц 12-15")),
-                listOf(InlineKeyboard(callbackData = "step_6", text = "Слова со страницы 22")),
-                listOf(InlineKeyboard(callbackData = "step_7", text = "Цвета (страница 24)")),
+                listOf(InlineKeyboard(callbackData = "step_1", text = "My Letters! P.6")),
+                listOf(InlineKeyboard(callbackData = "step_2", text = "My Letters! P.8")),
+                listOf(InlineKeyboard(callbackData = "step_3", text = "My Letters! P.10")),
+                listOf(InlineKeyboard(callbackData = "step_4", text = "Letter Blends! P.12-15")),
+                listOf(InlineKeyboard(callbackData = "step_5", text = "Big and small! P.16")),
+                listOf(InlineKeyboard(callbackData = "step_6", text = "My family! P.22")),
+                listOf(InlineKeyboard(callbackData = "step_7", text = "Colours. P.24")),
                 listOf(InlineKeyboard(callbackData = "step_8", text = "Module 1. Unit 1 My Home!")),
                 listOf(InlineKeyboard(callbackData = "step_9", text = "Unit 2/3")),
                 listOf(InlineKeyboard(callbackData = "step_10", text = "Module 2 Unit 4 Numbers")),

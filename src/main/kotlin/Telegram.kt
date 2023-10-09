@@ -115,12 +115,6 @@ data class AudioResponse(
     val result: Audio?
 )
 
-//@Serializable
-//data class AudioResult(
-//    @SerialName("audio")
-//    val audio: Audio?
-//)
-
 @Serializable
 data class Audio(
     @SerialName("file_id")
@@ -396,50 +390,56 @@ fun sendVoice(botToken: String, chatId: Long, audioFilePath: String): String {
 }
 
 fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Question): String {
-    val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendVoice"
-    val fileMediaType = "audio/*".toMediaType()
-    val client = OkHttpClient()
-    // Отправка аудио файла
-    val audioRequestBody = MultipartBody.Builder()
-        .setType(MultipartBody.FORM)
-        .addFormDataPart("chat_id", chatId.toString())
-        .addFormDataPart(
-            "voice",
-            File("$AUDIO_PATH${question.correctAnswer.audio}").name,
-            File("$AUDIO_PATH${question.correctAnswer.audio}").asRequestBody(fileMediaType)
+    try {
+        val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendVoice"
+        val fileMediaType = "audio/*".toMediaType()
+        val client = OkHttpClient()
+        // Отправка аудио файла
+        val audioRequestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("chat_id", chatId.toString())
+            .addFormDataPart(
+                "voice",
+                File("$AUDIO_PATH${question.correctAnswer.audio}").name,
+                File("$AUDIO_PATH${question.correctAnswer.audio}").asRequestBody(fileMediaType)
+            )
+//        .addFormDataPart("duration", "5")
+            .build()
+        val audioRequest = Request.Builder()
+            .url(sendAudioUrl)
+            .post(audioRequestBody)
+            .build()
+        val audioResponse = client.newCall(audioRequest).execute()
+        // Получение URL аудио файла
+        val audioResponseJson = json.decodeFromString<SendAudioResponse>(audioResponse.body?.string() ?: "")
+        val audioUrl = audioResponseJson.result.voice.fileId
+        // Отправка вариантов ответов с аудио
+        val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
+        val requestBody = SendMessageRequest(
+            chatId = chatId,
+            text = question.correctAnswer.original,
+            replyMarkup = ReplyMarkup(
+                question.variants.mapIndexed { index, word ->
+                    listOf(
+                        InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
+                    )
+                }
+            ),
+            audio = audioUrl
         )
-        .addFormDataPart("duration", "5")
-        .build()
-    val audioRequest = Request.Builder()
-        .url(sendAudioUrl)
-        .post(audioRequestBody)
-        .build()
-    val audioResponse = client.newCall(audioRequest).execute()
-    // Получение URL аудио файла
-    val audioResponseJson = json.decodeFromString<SendAudioResponse>(audioResponse.body?.string() ?: "")
-    val audioUrl = audioResponseJson.result.voice.fileId ?: ""
-    // Отправка вариантов ответов с аудио
-    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
-    val requestBody = SendMessageRequest(
-        chatId = chatId,
-        text = question.correctAnswer.original,
-        replyMarkup = ReplyMarkup(
-            question.variants.mapIndexed { index, word ->
-                listOf(
-                    InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
-                )
-            }
-        ),
-        audio = audioUrl
-    )
-    val requestBodyString = json.encodeToString(requestBody)
-    val sendMessageRequest = Request.Builder()
-        .url(sendMessageUrl)
-        .header("Content-type", "application/json")
-        .post(requestBodyString.toRequestBody())
-        .build()
-    val sendMessageResponse = client.newCall(sendMessageRequest).execute()
-    return sendMessageResponse.body?.string() ?: ""
+        val requestBodyString = json.encodeToString(requestBody)
+        val sendMessageRequest = Request.Builder()
+            .url(sendMessageUrl)
+            .header("Content-type", "application/json")
+            .post(requestBodyString.toRequestBody())
+            .build()
+        val sendMessageResponse = client.newCall(sendMessageRequest).execute()
+        return sendMessageResponse.body?.string() ?: ""
+
+    }
+    catch (e: Exception){
+        return sendMenu(json,botToken,chatId)
+    }
 }
 
 fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {

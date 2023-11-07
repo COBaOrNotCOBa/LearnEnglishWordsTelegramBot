@@ -173,9 +173,11 @@ fun main(args: Array<String>) {
             logger.info(responseString)
         }
 
-        if (responseString.contains("Too Many Requests") ||
-            responseString.contains("Gateway Timeout")
-        ) continue
+        if (responseString.contains("error_code")) {
+            Thread.sleep(5000)
+            continue
+        }
+
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
@@ -204,12 +206,13 @@ fun handleUpdate(
     }
 
     if (message?.lowercase() == MAIN_MENU || data == MAIN_MENU) {
-        if (chatId == 2090279521L || chatId == 1081959967L) {
+        if (chatId == 2090279521L) {
             sendAdminMenu(json, botToken, chatId)
         } else sendMenu(json, botToken, chatId)
     }
 
-    if (chatId in listOf(2090279521L, 1081959967L)) {
+    if (chatId in listOf(2090279521L)) {
+
         if (savingVoice[chatId] != listOf("", "") && savingVoice[chatId] != null) {
             val voice = update.message?.voice
             if (voice != null) {
@@ -247,10 +250,10 @@ fun handleUpdate(
             val listOfWords = trainer.getListOfWordsForAudioRecord(savingVoice[chatId]?.get(0)?.toInt() ?: 0)
             var word = listOfWords[savingVoice[chatId]?.get(1)?.toInt() ?: 0].original
             if (word.contains('?')) word = word.replace("?", "")
-            if (sendAudio(botToken,chatId,"$AUDIO_PATH$word") == "Ошибка: Файл не существует") {
+            if (sendAudio(botToken, chatId, "$AUDIO_PATH$word") == "Ошибка: Файл не существует") {
                 logger.info("Ошибка: Файл $AUDIO_PATH$word не существует")
                 println("Ошибка: Файл $AUDIO_PATH$word не существует")
-                sendMessage(json,botToken,chatId,"Файл не найден, попробуйте перезаписать его")
+                sendMessage(json, botToken, chatId, "Файл не найден, попробуйте перезаписать его")
             }
         }
 
@@ -305,8 +308,8 @@ fun handleUpdate(
         }
     }
 
-    if (message == "голос") {
-        sendAudio(botToken, chatId, "${AUDIO_PATH}1")
+    if (message?.lowercase() == "голос") {
+        sendAudio(botToken, chatId, "${AUDIO_PATH}cat")
     }
 }
 
@@ -436,9 +439,8 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
         val sendMessageResponse = client.newCall(sendMessageRequest).execute()
         return sendMessageResponse.body?.string() ?: ""
 
-    }
-    catch (e: Exception){
-        return sendMenu(json,botToken,chatId)
+    } catch (e: Exception) {
+        return sendMenu(json, botToken, chatId)
     }
 }
 

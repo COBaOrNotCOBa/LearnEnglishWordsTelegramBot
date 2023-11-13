@@ -153,7 +153,7 @@ fun main(args: Array<String>) {
     var lastUpdateId = 0L
     val json = Json { ignoreUnknownKeys = true }
     val trainers = Cache.Builder<Long, LearnWordsTrainer>()
-        .maximumCacheSize(50)
+        .maximumCacheSize(100)
         .build()
     val logger = LoggerFactory.getLogger("Log")
     val savingVoice = mutableMapOf<Long, List<String>>()

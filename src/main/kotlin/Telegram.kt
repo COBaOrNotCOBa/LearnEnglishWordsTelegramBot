@@ -290,14 +290,14 @@ fun handleUpdate(
     if (data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) == true) {
         val answerId = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
         if (trainer.checkAnswer(answerId)) {
-            sendMessage(json, botToken, chatId, "Правильно!")
+            sendMessage(json, botToken, chatId, "\u2714 Правильно!")
         } else {
             if (trainer.question?.correctAnswer?.original != null) {
                 sendMessage(
                     json,
                     botToken,
                     chatId,
-                    "Не правильно: ${trainer.question?.correctAnswer?.original} - " +
+                    "\u2718 Не правильно: ${trainer.question?.correctAnswer?.original} - " +
                             "${trainer.question?.correctAnswer?.translate}"
                 )
             } else sendMenu(json, botToken, chatId)
@@ -316,7 +316,7 @@ fun handleUpdate(
 fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: String, chatId: Long, step: Int) {
     val question = trainer.getNextQuestion(step)
     if (question == null) {
-        sendMessage(json, botToken, chatId, "Вы выучили все словав этом разделе")
+        sendMessage(json, botToken, chatId, "Вы выучили все слова в этом разделе")
         sendMenu(json, botToken, chatId)
     } else {
         sendQuestionAudio(json, botToken, chatId, question)
@@ -529,7 +529,7 @@ fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
     val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
-        text = "Список этапов со страницами из учебника",
+        text = "Push on step",
         replyMarkup = ReplyMarkup(
             listOf(
                 listOf(InlineKeyboard(callbackData = "step_1", text = "My Letters! P.6")),
@@ -607,7 +607,7 @@ fun sendMenu(json: Json, botToken: String, chatId: Long): String {
         replyMarkup = ReplyMarkup(
             listOf(
                 listOf(
-                    InlineKeyboard(callbackData = LEARN_WORDS_CLICKED, text = "Изучать слова"),
+                    InlineKeyboard(callbackData = LEARN_WORDS_CLICKED, text = "Учить слова"),
                     InlineKeyboard(callbackData = STATISTICS_CLICKED, text = "Статистика"),
                 )
             )

@@ -311,6 +311,11 @@ fun handleUpdate(
     if (message?.lowercase() == "голос") {
         sendAudio(botToken, chatId, "${AUDIO_PATH}cat")
     }
+
+    if (message?.lowercase() == "hello") {
+        sendAudio(botToken, chatId, "${AUDIO_PATH}cat")
+        sendMessage(json, botToken, chatId, "Hello dear friend!")
+    }
 }
 
 fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: String, chatId: Long, step: Int) {

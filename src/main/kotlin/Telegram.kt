@@ -150,10 +150,11 @@ data class SendAudio(
 fun main(args: Array<String>) {
 
     val botToken = args[0]
+    val odmin = args[1].toLong()
     var lastUpdateId = 0L
     val json = Json { ignoreUnknownKeys = true }
     val trainers = Cache.Builder<Long, LearnWordsTrainer>()
-        .maximumCacheSize(100)
+        .maximumCacheSize(25)
         .build()
     val logger = LoggerFactory.getLogger("Log")
     val savingVoice = mutableMapOf<Long, List<String>>()
@@ -181,7 +182,7 @@ fun main(args: Array<String>) {
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
-        sortedUpdates.forEach { handleUpdate(it, json, botToken, trainers, savingVoice) }
+        sortedUpdates.forEach { handleUpdate(it, json, botToken, trainers, savingVoice, odmin) }
         lastUpdateId = sortedUpdates.last().updateId + 1
     }
 }
@@ -191,13 +192,15 @@ fun handleUpdate(
     json: Json,
     botToken: String,
     trainers: Cache<Long, LearnWordsTrainer>,
-    savingVoice: MutableMap<Long, List<String>>
+    savingVoice: MutableMap<Long, List<String>>,
+    odmin : Long,
 ) {
 
     val logger = LoggerFactory.getLogger("Log")
 
     val message = update.message?.text
     val chatId = update.message?.chat?.id ?: update.callbackQuery?.message?.chat?.id ?: return
+    if (message != null) println("$chatId $message")
     val data = update.callbackQuery?.data
     val trainer = trainers.get(chatId) ?: run {
         val newTrainer = LearnWordsTrainer("src/main/kotlin/Result/$chatId.txt")
@@ -315,6 +318,19 @@ fun handleUpdate(
     if (message?.lowercase() == "hello") {
         sendAudio(botToken, chatId, "${AUDIO_PATH}cat")
         sendMessage(json, botToken, chatId, "Hello dear friend!")
+    }
+
+    if (message?.startsWith("консоль колл сендмесэйдж") == true) {
+        if (chatId in listOf(odmin)) {
+            val sendMessageFromUser = message.substringAfter("консоль колл сендмесэйдж ")
+            val userId =
+                sendMessageFromUser.let {
+                    sendMessageFromUser.substring(0, it.indexOfFirst { it.isLetter() }).trim().toLong()
+                }
+            val textForUser =
+                sendMessageFromUser.let { sendMessageFromUser.substring(it.indexOfFirst { it.isLetter() }) }
+                sendMessage(json, botToken, userId, textForUser)
+        }
     }
 }
 
@@ -453,6 +469,12 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
     } catch (e: Exception) {
         // обработка исключения
         e.printStackTrace()
+        sendMessage(
+            json,
+            botToken,
+            chatId,
+            "Произошла ошибка! Похоже у вас установлен запрет на входящие аудио сообщения =("
+        )
         sendMenu(json, botToken, chatId)
     }
 }

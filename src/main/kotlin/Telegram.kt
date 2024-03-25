@@ -475,7 +475,7 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
             chatId,
             "Произошла ошибка! Похоже у вас установлен запрет на входящие аудио сообщения =("
         )
-        sendMenu(json, botToken, chatId)
+        sendQuestion(json, botToken, chatId, question)
     }
 }
 

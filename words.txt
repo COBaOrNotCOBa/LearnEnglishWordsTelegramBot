@@ -171,18 +171,18 @@ circus|цирк|0|13|circus
 can|мочь, уметь|0|13|can
 can't|не могу, не умею|0|13|can't
 funny|смешной|0|13|funny
-ballerina|балерина|0|14|
-doll|кукла|0|14|
-teddy bear|плюшевый медведь|0|14|
-toy soldier|игрушечный солдат |0|14|
-toy|игрушка|0|14|
-toy box|коробка для игрушек|0|14|
-shelf|полка|0|14|
-on|на|0|14|
-in|в|0|14|
-under|под |0|14|
-his|его |0|14|
-her|её|0|14|
+ballerina|балерина|0|14|ballerina
+doll|кукла|0|14|doll
+teddy bear|плюшевый медведь|0|14|teddy bear
+toy soldier|игрушечный солдат |0|14|toy soldier
+toy|игрушка|0|14|toy
+toy box|коробка для игрушек|0|14|toy box
+shelf|полка|0|14|shelf
+on|на|0|14|on
+in|в|0|14|in
+under|под|0|14|under
+his|его|0|14|his
+her|её|0|14|her
 eyes|глаза|0|15|eyes
 ears|уши|0|15|ears
 nose|нос|0|15|nose

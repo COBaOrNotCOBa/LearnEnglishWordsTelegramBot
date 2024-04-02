@@ -209,7 +209,7 @@ fun handleUpdate(
     }
 
     if (message?.lowercase() == MAIN_MENU || data == MAIN_MENU) {
-        if (chatId == 2090279521L) {
+        if (chatId in listOf(2090279521L)) {
             sendAdminMenu(json, botToken, chatId)
         } else sendMenu(json, botToken, chatId)
     }
@@ -322,7 +322,7 @@ fun handleUpdate(
 
     if (message?.startsWith("консоль колл сендмесэйдж") == true) {
         if (chatId in listOf(odmin)) {
-            val sendMessageFromUser = message.substringAfter("консоль колл сендмесэйдж ")
+            val sendMessageFromUser = message.substringAfter("консоль колл сендмесэйдж")
             val userId =
                 sendMessageFromUser.let {
                     sendMessageFromUser.substring(0, it.indexOfFirst { it.isLetter() }).trim().toLong()
@@ -473,7 +473,7 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
             json,
             botToken,
             chatId,
-            "Произошла ошибка! Похоже у вас установлен запрет на входящие аудио сообщения =("
+            "Произошла ошибка загрузки аудио =("
         )
         sendQuestion(json, botToken, chatId, question)
     }

@@ -1,5 +1,4 @@
 import org.slf4j.LoggerFactory
-import io.github.reactivecircus.cache4k.Cache
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -50,9 +49,9 @@ data class Voice(
     @SerialName("file_id")
     val fileId: String? = null,
     @SerialName("file_unique_id")
-    val file_unique_id: String? = null,
+    val fileUniqueId: String? = null,
     @SerialName("file_path")
-    val file_path: String? = null,
+    val filePath: String? = null,
 )
 
 @Serializable
@@ -120,31 +119,9 @@ data class Audio(
     @SerialName("file_id")
     val fileId: String,
     @SerialName("file_unique_id")
-    val file_unique_id: String,
+    val fileUniqueId: String,
     @SerialName("file_path")
-    val file_path: String? = null,
-)
-
-@Serializable
-data class SendAudioResponse(
-    @SerialName("result")
-    val result: SendAudioResult
-)
-
-@Serializable
-data class SendAudioResult(
-    @SerialName("voice")
-    val voice: SendAudio
-)
-
-@Serializable
-data class SendAudio(
-    @SerialName("file_id")
-    val fileId: String,
-    @SerialName("file_unique_id")
-    val file_unique_id: String,
-    @SerialName("file_path")
-    val file_path: String? = null,
+    val filePath: String? = null,
 )
 
 fun main(args: Array<String>) {
@@ -153,9 +130,7 @@ fun main(args: Array<String>) {
     val odmin = args[1].toLong()
     var lastUpdateId = 0L
     val json = Json { ignoreUnknownKeys = true }
-    val trainers = Cache.Builder<Long, LearnWordsTrainer>()
-        .maximumCacheSize(25)
-        .build()
+    val trainers = mutableMapOf<Long, LearnWordsTrainer>()
     val logger = LoggerFactory.getLogger("Log")
     val savingVoice = mutableMapOf<Long, List<String>>()
 
@@ -191,7 +166,7 @@ fun handleUpdate(
     update: Update,
     json: Json,
     botToken: String,
-    trainers: Cache<Long, LearnWordsTrainer>,
+    trainers: MutableMap<Long, LearnWordsTrainer>,
     savingVoice: MutableMap<Long, List<String>>,
     odmin : Long,
 ) {
@@ -202,9 +177,9 @@ fun handleUpdate(
     val chatId = update.message?.chat?.id ?: update.callbackQuery?.message?.chat?.id ?: return
     if (message != null) println("$chatId $message")
     val data = update.callbackQuery?.data
-    val trainer = trainers.get(chatId) ?: run {
+    val trainer = trainers[chatId] ?: run {
         val newTrainer = LearnWordsTrainer("src/main/kotlin/Result/$chatId.txt")
-        trainers.put(chatId, newTrainer)
+        trainers[chatId] = newTrainer
         newTrainer
     }
 
@@ -324,12 +299,13 @@ fun handleUpdate(
         if (chatId in listOf(odmin)) {
             val sendMessageFromUser = message.substringAfter("консоль колл сендмесэйдж")
             val userId =
-                sendMessageFromUser.let {
+                sendMessageFromUser.let { it ->
                     sendMessageFromUser.substring(0, it.indexOfFirst { it.isLetter() }).trim().toLong()
                 }
             val textForUser =
-                sendMessageFromUser.let { sendMessageFromUser.substring(it.indexOfFirst { it.isLetter() }) }
+                sendMessageFromUser.let { it -> sendMessageFromUser.substring(it.indexOfFirst { it.isLetter() }) }
                 sendMessage(json, botToken, userId, textForUser)
+            println("done")
         }
     }
 }
@@ -390,31 +366,9 @@ fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
     return response.body?.string() ?: ""
 }
 
-fun sendVoice(botToken: String, chatId: Long, audioFilePath: String): String {
-    val audioFile = File(audioFilePath)
-    if (!audioFile.exists()) {
-        return "Ошибка: Файл не существует"
-    }
-    val sendVoiceUrl = "https://api.telegram.org/bot$botToken/sendVoice"
-    val fileMediaType = "audio/*".toMediaType()
-    val requestBody = MultipartBody.Builder()
-        .setType(MultipartBody.FORM)
-        .addFormDataPart("chat_id", chatId.toString())
-        .addFormDataPart("voice", audioFile.name, audioFile.asRequestBody(fileMediaType))
-        .addFormDataPart("duration", "5")
-        .build()
-    val request = Request.Builder()
-        .url(sendVoiceUrl)
-        .post(requestBody)
-        .build()
-    val client = OkHttpClient()
-    val response = client.newCall(request).execute()
-
-    return response.body?.string() ?: ""
-}
-
 fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Question): String {
     val client = OkHttpClient()
+    println(question.correctAnswer)
     return try {
         val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendVoice"
         val fileMediaType = "audio/*".toMediaType()
@@ -542,7 +496,7 @@ fun downloadAudio(json: Json, botToken: String, fileId: String?, word: String) {
     val response = client.newCall(request).execute()
     val responseBody = response.body?.string()
     val audio: AudioResponse = json.decodeFromString(responseBody!!)
-    val audioUrl = "https://api.telegram.org/file/bot$botToken/${audio.result?.file_path}"
+    val audioUrl = "https://api.telegram.org/file/bot$botToken/${audio.result?.filePath}"
     val audioRequest = Request.Builder()
         .url(audioUrl)
         .build()

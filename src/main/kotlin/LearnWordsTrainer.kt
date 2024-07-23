@@ -56,6 +56,7 @@ class LearnWordsTrainer(
             variants = questionWords,
             correctAnswer = correctAnswer,
         )
+        println(correctAnswer)
         return question
     }
 

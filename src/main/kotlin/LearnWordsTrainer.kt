@@ -81,7 +81,7 @@ class LearnWordsTrainer(
 
     private fun loadDictionary(): List<Word> {
         try {
-            val wordsFile: File = File(fileName)
+            val wordsFile = File(fileName)
             if (!wordsFile.exists()) {
                 File("words.txt").copyTo(wordsFile)
             }
@@ -106,7 +106,7 @@ class LearnWordsTrainer(
     }
 
     private fun saveDictionary() {
-        val wordsFile: File = File(fileName)
+        val wordsFile = File(fileName)
         wordsFile.writeText("")
         dictionary.forEach {
             wordsFile.appendText(

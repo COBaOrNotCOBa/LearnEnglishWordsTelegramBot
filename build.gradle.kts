@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.serialization") version "2.0.0"
+    kotlin("jvm") version "2.0.10-RC"
+    kotlin("plugin.serialization") version "2.0.10-RC"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     application
 }
@@ -24,7 +24,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 application {

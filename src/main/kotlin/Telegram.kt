@@ -167,7 +167,7 @@ fun handleUpdate(
     botToken: String,
     trainers: MutableMap<Long, LearnWordsTrainer>,
     savingVoice: MutableMap<Long, List<String>>,
-    odmin : Long,
+    odmin: Long,
 ) {
 
     val logger = LoggerFactory.getLogger("Log")
@@ -303,7 +303,7 @@ fun handleUpdate(
                 }
             val textForUser =
                 sendMessageFromUser.let { it -> sendMessageFromUser.substring(it.indexOfFirst { it.isLetter() }) }
-                sendMessage(json, botToken, userId, textForUser)
+            sendMessage(json, botToken, userId, textForUser)
             println("done")
         }
     }
@@ -320,11 +320,16 @@ fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: S
 }
 
 fun getUpdates(botToken: String, updateId: Long): String {
-    val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-    return response.body()
+    try {
+        val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
+        val client: HttpClient = HttpClient.newBuilder().build()
+        val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
+        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+        return response.body()
+    } catch (e: Exception) {
+        println(e)
+        return "connect update error"
+    }
 }
 
 fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): String {
@@ -389,11 +394,6 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
             .build()
 
         client.newCall(audioRequest).execute().use {
-
-            // Получение URL аудио файла
-//            val audioResponseJson = json.decodeFromString<SendAudioResponse>(audioResponse.body?.string() ?: "")
-//            val audioUrl = audioResponseJson.result.voice.fileId
-
             // Отправка вариантов ответов с аудио (сейчас без)
             val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
             val requestBody = SendMessageRequest(
@@ -406,7 +406,6 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
                         )
                     }
                 ),
-//                audio = audioUrl
             )
             val requestBodyString = json.encodeToString(requestBody)
             val sendMessageRequest = Request.Builder()
@@ -653,12 +652,12 @@ fun sendResetButton(json: Json, botToken: String, chatId: Long, message: String)
     return response.body()
 }
 
-fun botCommand(json: Json, botTokenTg: String, command: List<BotCommand>) {
+fun botCommand(json: Json, botToken: String, command: List<BotCommand>) {
     val setMyCommandsRequest = SetMyCommandsRequest(command)
     val requestBody = json.encodeToString(setMyCommandsRequest)
     val client = OkHttpClient()
     val request = Request.Builder()
-        .url("https://api.telegram.org/bot$botTokenTg/setMyCommands")
+        .url("https://api.telegram.org/bot$botToken/setMyCommands")
         .post(requestBody.toRequestBody("application/json".toMediaTypeOrNull()))
         .build()
     val response = client.newCall(request).execute()

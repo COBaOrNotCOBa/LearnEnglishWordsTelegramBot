@@ -15,6 +15,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.io.File
+import java.time.LocalDateTime
 
 
 @Serializable
@@ -144,7 +145,7 @@ fun main(args: Array<String>) {
         val result = runCatching { getUpdates(botToken, lastUpdateId) }
         val responseString = result.getOrNull() ?: continue
         if (responseString != "{\"ok\":true,\"result\":[]}") {
-            println(responseString)
+            println("${LocalDateTime.now()}: $responseString")
             logger.info(responseString)
         }
 
@@ -319,7 +320,7 @@ fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: S
     }
 }
 
-fun getUpdates(botToken: String, updateId: Long): String {
+fun getUpdates(botToken: String, updateId: Long): String? {
     try {
         val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
         val client: HttpClient = HttpClient.newBuilder().build()
@@ -327,8 +328,8 @@ fun getUpdates(botToken: String, updateId: Long): String {
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
         return response.body()
     } catch (e: Exception) {
-        println(e)
-        return "connect update error"
+        println("${LocalDateTime.now()}: Ошибка апдейта: $e")
+        return null
     }
 }
 

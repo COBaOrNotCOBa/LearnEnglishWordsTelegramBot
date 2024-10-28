@@ -10,11 +10,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.io.File
 import java.time.LocalDateTime
 
 
@@ -170,7 +170,7 @@ fun handleUpdate(
     savingVoice: MutableMap<Long, List<String>>,
     odmin: Long,
 ) {
-
+   
     val logger = LoggerFactory.getLogger("Log")
 
     val message = update.message?.text
@@ -320,34 +320,81 @@ fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: S
     }
 }
 
+//fun getUpdates(botToken: String, updateId: Long): String? {
+//    try {
+//        val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
+//        val client: HttpClient = HttpClient.newBuilder().build()
+//        val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
+//        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+//        return response.body()
+//    } catch (e: Exception) {
+//        println("${LocalDateTime.now()}: Ошибка апдейта: $e")
+//        return null
+//    }
+//}
+
 fun getUpdates(botToken: String, updateId: Long): String? {
-    try {
-        val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
-        val client: HttpClient = HttpClient.newBuilder().build()
-        val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return response.body()
+    val client = OkHttpClient()
+    val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
+    val request: Request = Request.Builder()
+        .url(urlGetUpdates)
+        .build()
+    return try {
+        val response: okhttp3.Response = client.newCall(request).execute()
+        if (response.isSuccessful) {
+            response.body?.string()
+        } else {
+            println("${LocalDateTime.now()}: Ошибка апдейта: ${response.message}")
+            null
+        }
     } catch (e: Exception) {
         println("${LocalDateTime.now()}: Ошибка апдейта: $e")
-        return null
+        null
     }
 }
 
 fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val client = OkHttpClient()
+    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = message,
     )
     val requestBodyString = json.encodeToString(requestBody)
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-        .header("Content-type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+    val body = requestBodyString.toRequestBody("application/json".toMediaType())
+    val request: Request = Request.Builder()
+        .url(sendMessageUrl)
+        .post(body)
         .build()
-    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-    return response.body()
+    return try {
+        val response: okhttp3.Response = client.newCall(request).execute()
+        if (response.isSuccessful) {
+            response.body?.string() ?: "Empty response body"
+        } else {
+            println("Error: ${response.message}")
+            "Error: ${response.message}"
+        }
+    } catch (e: Exception) {
+        println("Error sending message: $e")
+        "Error: $e"
+    }
 }
+
+//fun sendMessage2(json: Json, botToken: String, chatId: Long, message: String): String {
+//    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+//    val requestBody = SendMessageRequest(
+//        chatId = chatId,
+//        text = message,
+//    )
+//    val requestBodyString = json.encodeToString(requestBody)
+//    val client: HttpClient = HttpClient.newBuilder().build()
+//    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
+//        .header("Content-type", "application/json")
+//        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+//        .build()
+//    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+//    return response.body()
+//}
 
 fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
     val audioFile = File(audioFilePath)
@@ -433,7 +480,7 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
 }
 
 fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = question.correctAnswer.original,
@@ -443,17 +490,51 @@ fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question)
                     InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
                 )
             }
-        ),
+        )
     )
     val requestBodyString = json.encodeToString(requestBody)
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-        .header("Content-type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+    val body = requestBodyString.toRequestBody("application/json".toMediaType())
+    val request: Request = Request.Builder()
+        .url(sendMessageUrl)
+        .post(body)
         .build()
-    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-    return response.body()
+    return try {
+        val client = OkHttpClient()
+        val response: okhttp3.Response = client.newCall(request).execute()
+        if (response.isSuccessful) {
+            response.body?.string() ?: "Empty response body"
+        } else {
+            println("Error: ${response.message}")
+            "Error: ${response.message}"
+        }
+    } catch (e: Exception) {
+        println("Error sending question: $e")
+        "Error: $e"
+    }
 }
+
+//fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {
+//    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+//    val requestBody = SendMessageRequest(
+//        chatId = chatId,
+//        text = question.correctAnswer.original,
+//        replyMarkup = ReplyMarkup(
+//            question.variants.mapIndexed { index, word ->
+//                listOf(
+//                    InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
+//                )
+//            }
+//        ),
+//    )
+//    val requestBodyString = json.encodeToString(requestBody)
+//    val client: HttpClient = HttpClient.newBuilder().build()
+//    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
+//        .header("Content-type", "application/json")
+//        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+//        .build()
+//    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+//    return response.body()
+//}
 
 fun sendListOfWordsForRecord(
     json: Json,
@@ -463,7 +544,7 @@ fun sendListOfWordsForRecord(
     step: Int
 ): String {
     val listOfWords = trainer.getListOfWordsForAudioRecord(step)
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = "Этап номер ${listOfWords[0].groupAlphabet}",
@@ -474,17 +555,59 @@ fun sendListOfWordsForRecord(
                     InlineKeyboard(text = word.audio ?: "", callbackData = "$CALLBACK_DATA_AUDIO_PLAY$step-$index")
                 )
             }
-        ),
+        )
     )
     val requestBodyString = json.encodeToString(requestBody)
-    val client: HttpClient = HttpClient.newBuilder().build()
-    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-        .header("Content-type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+    val body = requestBodyString.toRequestBody("application/json".toMediaType())
+    val request: Request = Request.Builder()
+        .url(sendMessageUrl)
+        .post(body)
         .build()
-    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-    return response.body()
+    return try {
+        val client = OkHttpClient()
+        val response: okhttp3.Response = client.newCall(request).execute()
+        if (response.isSuccessful) {
+            response.body?.string() ?: "Empty response body"
+        } else {
+            println("Error: ${response.message}")
+            "Error: ${response.message}"
+        }
+    } catch (e: Exception) {
+        println("Error sending list of words: $e")
+        "Error: $e"
+    }
 }
+
+//fun sendListOfWordsForRecord(
+//    json: Json,
+//    trainer: LearnWordsTrainer,
+//    botToken: String,
+//    chatId: Long,
+//    step: Int
+//): String {
+//    val listOfWords = trainer.getListOfWordsForAudioRecord(step)
+//    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+//    val requestBody = SendMessageRequest(
+//        chatId = chatId,
+//        text = "Этап номер ${listOfWords[0].groupAlphabet}",
+//        replyMarkup = ReplyMarkup(
+//            listOfWords.mapIndexed { index, word ->
+//                listOf(
+//                    InlineKeyboard(text = word.original, callbackData = "$CALLBACK_DATA_AUDIO_SAVE$step-$index"),
+//                    InlineKeyboard(text = word.audio ?: "", callbackData = "$CALLBACK_DATA_AUDIO_PLAY$step-$index")
+//                )
+//            }
+//        ),
+//    )
+//    val requestBodyString = json.encodeToString(requestBody)
+//    val client: HttpClient = HttpClient.newBuilder().build()
+//    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
+//        .header("Content-type", "application/json")
+//        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
+//        .build()
+//    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+//    return response.body()
+//}
 
 fun downloadAudio(json: Json, botToken: String, fileId: String?, word: String) {
     val client = OkHttpClient()

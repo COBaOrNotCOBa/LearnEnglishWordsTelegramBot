@@ -320,22 +320,9 @@ fun checkNextQuestionAndSend(json: Json, trainer: LearnWordsTrainer, botToken: S
     }
 }
 
-//fun getUpdates(botToken: String, updateId: Long): String? {
-//    try {
-//        val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
-//        val client: HttpClient = HttpClient.newBuilder().build()
-//        val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-//        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-//        return response.body()
-//    } catch (e: Exception) {
-//        println("${LocalDateTime.now()}: Ошибка апдейта: $e")
-//        return null
-//    }
-//}
-
 fun getUpdates(botToken: String, updateId: Long): String? {
     val client = OkHttpClient()
-    val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
+    val urlGetUpdates = "$URL_TG_BOT_API$botToken/getUpdates?offset=$updateId"
     val request: Request = Request.Builder()
         .url(urlGetUpdates)
         .build()
@@ -355,7 +342,7 @@ fun getUpdates(botToken: String, updateId: Long): String? {
 
 fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): String {
     val client = OkHttpClient()
-    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessageUrl = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = message,
@@ -380,28 +367,12 @@ fun sendMessage(json: Json, botToken: String, chatId: Long, message: String): St
     }
 }
 
-//fun sendMessage2(json: Json, botToken: String, chatId: Long, message: String): String {
-//    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-//    val requestBody = SendMessageRequest(
-//        chatId = chatId,
-//        text = message,
-//    )
-//    val requestBodyString = json.encodeToString(requestBody)
-//    val client: HttpClient = HttpClient.newBuilder().build()
-//    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-//        .header("Content-type", "application/json")
-//        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
-//        .build()
-//    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-//    return response.body()
-//}
-
 fun sendAudio(botToken: String, chatId: Long, audioFilePath: String): String {
     val audioFile = File(audioFilePath)
     if (!audioFile.exists()) {
         return "Ошибка: Файл не существует"
     }
-    val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendAudio"
+    val sendAudioUrl = "$URL_TG_BOT_API$botToken/sendAudio"
     val fileMediaType = "audio/*".toMediaType()
     val requestBody = MultipartBody.Builder()
         .setType(MultipartBody.FORM)
@@ -422,7 +393,7 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
     val client = OkHttpClient()
     println(question.correctAnswer)
     return try {
-        val sendAudioUrl = "https://api.telegram.org/bot$botToken/sendVoice"
+        val sendAudioUrl = "$URL_TG_BOT_API$botToken/sendVoice"
         val fileMediaType = "audio/*".toMediaType()
 
         // Отправка аудио файла
@@ -443,7 +414,7 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
 
         client.newCall(audioRequest).execute().use {
             // Отправка вариантов ответов с аудио (сейчас без)
-            val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
+            val sendMessageUrl = "$URL_TG_BOT_API$botToken/sendMessage"
             val requestBody = SendMessageRequest(
                 chatId = chatId,
                 text = question.correctAnswer.original,
@@ -480,7 +451,7 @@ fun sendQuestionAudio(json: Json, botToken: String, chatId: Long, question: Ques
 }
 
 fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {
-    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessageUrl = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = question.correctAnswer.original,
@@ -513,29 +484,6 @@ fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question)
     }
 }
 
-//fun sendQuestion(json: Json, botToken: String, chatId: Long, question: Question): String {
-//    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-//    val requestBody = SendMessageRequest(
-//        chatId = chatId,
-//        text = question.correctAnswer.original,
-//        replyMarkup = ReplyMarkup(
-//            question.variants.mapIndexed { index, word ->
-//                listOf(
-//                    InlineKeyboard(text = word.translate, callbackData = "$CALLBACK_DATA_ANSWER_PREFIX$index")
-//                )
-//            }
-//        ),
-//    )
-//    val requestBodyString = json.encodeToString(requestBody)
-//    val client: HttpClient = HttpClient.newBuilder().build()
-//    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-//        .header("Content-type", "application/json")
-//        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
-//        .build()
-//    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-//    return response.body()
-//}
-
 fun sendListOfWordsForRecord(
     json: Json,
     trainer: LearnWordsTrainer,
@@ -544,7 +492,7 @@ fun sendListOfWordsForRecord(
     step: Int
 ): String {
     val listOfWords = trainer.getListOfWordsForAudioRecord(step)
-    val sendMessageUrl = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessageUrl = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = "Этап номер ${listOfWords[0].groupAlphabet}",
@@ -578,40 +526,9 @@ fun sendListOfWordsForRecord(
     }
 }
 
-//fun sendListOfWordsForRecord(
-//    json: Json,
-//    trainer: LearnWordsTrainer,
-//    botToken: String,
-//    chatId: Long,
-//    step: Int
-//): String {
-//    val listOfWords = trainer.getListOfWordsForAudioRecord(step)
-//    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
-//    val requestBody = SendMessageRequest(
-//        chatId = chatId,
-//        text = "Этап номер ${listOfWords[0].groupAlphabet}",
-//        replyMarkup = ReplyMarkup(
-//            listOfWords.mapIndexed { index, word ->
-//                listOf(
-//                    InlineKeyboard(text = word.original, callbackData = "$CALLBACK_DATA_AUDIO_SAVE$step-$index"),
-//                    InlineKeyboard(text = word.audio ?: "", callbackData = "$CALLBACK_DATA_AUDIO_PLAY$step-$index")
-//                )
-//            }
-//        ),
-//    )
-//    val requestBodyString = json.encodeToString(requestBody)
-//    val client: HttpClient = HttpClient.newBuilder().build()
-//    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(sendMessage))
-//        .header("Content-type", "application/json")
-//        .POST(HttpRequest.BodyPublishers.ofString(requestBodyString))
-//        .build()
-//    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-//    return response.body()
-//}
-
 fun downloadAudio(json: Json, botToken: String, fileId: String?, word: String) {
     val client = OkHttpClient()
-    val url = "https://api.telegram.org/bot$botToken/getFile?file_id=$fileId"
+    val url = "$URL_TG_BOT_API$botToken/getFile?file_id=$fileId"
     val request = Request.Builder()
         .url(url)
         .build()
@@ -629,7 +546,7 @@ fun downloadAudio(json: Json, botToken: String, fileId: String?, word: String) {
 }
 
 fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessage = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = "Push on step",
@@ -666,7 +583,7 @@ fun sendListOfSteps(json: Json, botToken: String, chatId: Long): String {
 }
 
 fun sendListOfStepsForVoice(json: Json, botToken: String, chatId: Long): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessage = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = "Список этапов со страницами из учебника для записи звука",
@@ -703,7 +620,7 @@ fun sendListOfStepsForVoice(json: Json, botToken: String, chatId: Long): String 
 }
 
 fun sendMenu(json: Json, botToken: String, chatId: Long): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessage = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = "Основное меню",
@@ -727,7 +644,7 @@ fun sendMenu(json: Json, botToken: String, chatId: Long): String {
 }
 
 fun sendAdminMenu(json: Json, botToken: String, chatId: Long): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessage = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = "Основное меню",
@@ -754,7 +671,7 @@ fun sendAdminMenu(json: Json, botToken: String, chatId: Long): String {
 }
 
 fun sendResetButton(json: Json, botToken: String, chatId: Long, message: String): String {
-    val sendMessage = "https://api.telegram.org/bot$botToken/sendMessage"
+    val sendMessage = "$URL_TG_BOT_API$botToken/sendMessage"
     val requestBody = SendMessageRequest(
         chatId = chatId,
         text = message,
@@ -781,7 +698,7 @@ fun botCommand(json: Json, botToken: String, command: List<BotCommand>) {
     val requestBody = json.encodeToString(setMyCommandsRequest)
     val client = OkHttpClient()
     val request = Request.Builder()
-        .url("https://api.telegram.org/bot$botToken/setMyCommands")
+        .url("$URL_TG_BOT_API$botToken/setMyCommands")
         .post(requestBody.toRequestBody("application/json".toMediaTypeOrNull()))
         .build()
     val response = client.newCall(request).execute()
@@ -805,3 +722,4 @@ const val ADD_VOICE = "add_voice"
 const val AUDIO_STEP = "audio_step_"
 const val CALLBACK_DATA_AUDIO_SAVE = "audio_push_save_"
 const val CALLBACK_DATA_AUDIO_PLAY = "audio_push_play_"
+const val URL_TG_BOT_API = "https://api.telegram.org/bot"

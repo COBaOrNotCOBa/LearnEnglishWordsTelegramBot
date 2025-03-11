@@ -17,7 +17,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.LocalDateTime
 
-
 @Serializable
 data class Response(
     @SerialName("result")
@@ -128,6 +127,7 @@ fun main(args: Array<String>) {
 
     val botToken = args[0]
     val odmin = args[1].toLong()
+    val voiceCreator = args[2].toLong()
     var lastUpdateId = 0L
     val json = Json { ignoreUnknownKeys = true }
     val trainers = mutableMapOf<Long, LearnWordsTrainer>()
@@ -157,7 +157,7 @@ fun main(args: Array<String>) {
         val response: Response = json.decodeFromString(responseString)
         if (response.result.isEmpty()) continue
         val sortedUpdates = response.result.sortedBy { it.updateId }
-        sortedUpdates.forEach { handleUpdate(it, json, botToken, trainers, savingVoice, odmin) }
+        sortedUpdates.forEach { handleUpdate(it, json, botToken, trainers, savingVoice, odmin, voiceCreator) }
         lastUpdateId = sortedUpdates.last().updateId + 1
     }
 }
@@ -169,6 +169,7 @@ fun handleUpdate(
     trainers: MutableMap<Long, LearnWordsTrainer>,
     savingVoice: MutableMap<Long, List<String>>,
     odmin: Long,
+    voiceCreator: Long,
 ) {
    
     val logger = LoggerFactory.getLogger("Log")
@@ -189,7 +190,7 @@ fun handleUpdate(
         } else sendMenu(json, botToken, chatId)
     }
 
-    if (chatId in listOf(2090279521L)) {
+    if (chatId in listOf(voiceCreator)) {
 
         if (savingVoice[chatId] != listOf("", "") && savingVoice[chatId] != null) {
             val voice = update.message?.voice

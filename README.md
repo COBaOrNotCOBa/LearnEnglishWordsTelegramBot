@@ -36,33 +36,48 @@
 
 ## Как запустить
 
-1. Клонировать репозиторий:
-   ```bash
-   git clone https://github.com/COBaOrNotCOBa/LearnEnglishWordsTelegramBot.git
-   cd LearnEnglishWordsTelegramBot
-Указать токен бота в том месте, где он ожидается кодом
+### Клонирование репозитория
+
+    git clone https://github.com/COBaOrNotCOBa/LearnEnglishWordsTelegramBot.git
+    cd LearnEnglishWordsTelegramBot
+
+### Настройка токена бота
+
+Укажите токен Telegram-бота в том месте, где он ожидается кодом  
 (например, через переменные окружения или конфигурационный файл).
 
-Собрать fat-jar:
+### Сборка fat-jar
 
-bash
-Копировать код
-./gradlew shadowJar
-Готовый jar будет в build/libs с суффиксом -all.jar.
+Linux / macOS:
 
-Запустить бота:
+    ./gradlew shadowJar
 
-bash
-Копировать код
-java -jar build/libs/<имя-jar>-all.jar
-или через Gradle:
+Windows:
 
-bash
-Копировать код
-./gradlew run
+    gradlew.bat shadowJar
+
+Готовый jar-файл будет в каталоге:
+
+    build/libs/
+
+обычно с суффиксом `-all.jar`.
+
+### Запуск бота
+
+Запуск через собранный jar:
+
+    java -jar build/libs/<имя-jar>-all.jar
+
+Запуск через Gradle Wrapper:
+
+Linux / macOS:
+
+    ./gradlew run
+
+Windows:
+
+    gradlew.bat run
 
 ## Статус проекта
 
-Курсовая работа по Kotlin и Telegram Bot API. 
-Подходит как пример простого бота для обучения английским словам и основы для дальнейших экспериментов.
-После был доделан для школьной программы.
+Курсовая работа по Kotlin и Telegram Bot API. Подходит как пример простого бота для обучения английским словам и основы для дальнейших экспериментов. После этого проект был доработан под школьную программу.
